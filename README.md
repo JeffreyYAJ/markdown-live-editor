@@ -1,73 +1,89 @@
-# React + TypeScript + Vite
+# Markdown Live Editor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A real-time markdown editor with live preview, built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+![Markdown Editor](https://img.shields.io/badge/React-19-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- **Live Preview**: See your markdown rendered in real-time as you type
+- **Debounced Input**: Optimized performance with 300ms debounce on updates
+- **LaTeX Support**: Inline (`$E=mc^2$`) and block math expressions
+- **Syntax Highlighting**: Code blocks with proper formatting
+- **Responsive Design**: Side-by-side layout on desktop, stacked on mobile
+- **Dark Theme Editor**: Easy on the eyes for long writing sessions
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 18+
+- npm or yarn
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Clone the repository
+git clone https://github.com/kyler004/markdown-live-editor.git
+cd markdown-live-editor
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will be available at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ Tech Stack
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Tailwind CSS v4** - Styling
+- **Lucide React** - Icons
+
+## 📁 Project Structure
+
 ```
+src/
+├── components/
+│   ├── Header.tsx       # App header
+│   ├── EditorPanel.tsx  # Markdown textarea
+│   └── PreviewPanel.tsx # Rendered preview
+├── data/
+│   └── initialMarkdown.ts # Default editor content
+├── utils/
+│   └── markdownParser.ts  # Markdown to HTML converter
+├── App.tsx              # Main application
+├── main.tsx             # Entry point
+└── index.css            # Global styles
+```
+
+## 📜 Available Scripts
+
+| Command           | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Start development server |
+| `npm run build`   | Build for production     |
+| `npm run preview` | Preview production build |
+| `npm run lint`    | Run ESLint               |
+
+## 🎨 Supported Markdown
+
+- Headers (`#`, `##`, `###`)
+- **Bold** and _Italic_ text
+- `Inline code` and code blocks
+- Links and blockquotes
+- Unordered and ordered lists
+- Horizontal rules
+- LaTeX math (inline and block)
+
+## 📄 License
+
+MIT
+
+---
+
+Made with ❤️ by [kyler004](https://github.com/kyler004)
