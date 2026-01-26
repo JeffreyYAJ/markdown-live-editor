@@ -1,1 +1,120 @@
 @import "tailwindcss";
+
+.prose h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: #1e293b;
+}
+
+.prose h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-top: 0.8em;
+  margin-bottom: 0.5em;
+  color: #334155;
+}
+
+.prose h3 {
+  font-size: 1.25em;
+  font-weight: bold;
+  margin-top: 0.6em;
+  margin-bottom: 0.4em;
+  color: #475569;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.prose em {
+  font-style: italic;
+  color: #334155;
+}
+
+.prose code {
+  background-color: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  font-size: 0.9em;
+  color: #e11d48;
+}
+
+.prose pre {
+  background-color: #1e293b;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.prose pre code {
+  background-color: transparent;
+  color: #e2e8f0;
+  padding: 0;
+  font-size: 0.875em;
+}
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 2em;
+  margin: 1em 0;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 2em;
+  margin: 1em 0;
+}
+
+.prose li {
+  margin: 0.5em 0;
+  color: #334155;
+}
+
+.prose blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1em;
+  margin: 1em 0;
+  color: #64748b;
+  font-style: italic;
+}
+
+.prose a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #2563eb;
+}
+
+.prose hr {
+  border: none;
+  border-top: 2px solid #e2e8f0;
+  margin: 2em 0;
+}
+
+.math-inline {
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  color: #7c3aed;
+  background-color: #f5f3ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.math-block {
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  color: #7c3aed;
+  background-color: #f5f3ff;
+  padding: 1em;
+  border-radius: 8px;
+  text-align: center;
+  margin: 1em 0;
+  font-size: 1.1em;
+}
