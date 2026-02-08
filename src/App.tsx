@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import html2pdf from "html2pdf.js";
 import Header from "./components/Header";
 import EditorPanel from "./components/EditorPanel";
 import PreviewPanel from "./components/PreviewPanel";
@@ -38,10 +39,29 @@ const MarkdownEditor: React.FC = () => {
     setDebounceTimer(timer);
   };
 
+  // Handle PDF download
+  const handleDownloadPDF = () => {
+    const element = document.createElement("div");
+    element.innerHTML = preview;
+    element.style.padding = "20px";
+    element.style.fontSize = "16px";
+    element.style.lineHeight = "1.6";
+
+    const options = {
+      margin: 10,
+      filename: "markdown-document.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { orientation: "portrait", unit: "mm", format: "a4" },
+    };
+
+    html2pdf().set(options).from(element).save();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
       <div className="max-w-7xl mx-auto">
-        <Header />
+        <Header onDownloadPDF={handleDownloadPDF} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <EditorPanel markdown={markdown} onChange={handleChange} />
