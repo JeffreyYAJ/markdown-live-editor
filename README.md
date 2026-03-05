@@ -4,7 +4,7 @@ A real-time markdown editor with live preview, built with React, TypeScript, and
 
 ![Markdown Editor](https://img.shields.io/badge/React-19-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4)
 
-## ✨ Features
+##  Features
 
 - **Live Preview**: See your markdown rendered in real-time as you type
 - **Debounced Input**: Optimized performance with 300ms debounce on updates
@@ -13,7 +13,7 @@ A real-time markdown editor with live preview, built with React, TypeScript, and
 - **Responsive Design**: Side-by-side layout on desktop, stacked on mobile
 - **Dark Theme Editor**: Easy on the eyes for long writing sessions
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -36,7 +36,7 @@ npm run dev
 
 The app will be available at `http://localhost:5173`.
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **React 19** - UI library
 - **TypeScript** - Type safety
@@ -44,7 +44,7 @@ The app will be available at `http://localhost:5173`.
 - **Tailwind CSS v4** - Styling
 - **Lucide React** - Icons
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 src/
@@ -61,7 +61,7 @@ src/
 └── index.css            # Global styles
 ```
 
-## 📜 Available Scripts
+##  Available Scripts
 
 | Command           | Description              |
 | ----------------- | ------------------------ |
@@ -70,7 +70,7 @@ src/
 | `npm run preview` | Preview production build |
 | `npm run lint`    | Run ESLint               |
 
-## 🎨 Supported Markdown
+##  Supported Markdown
 
 - Headers (`#`, `##`, `###`)
 - **Bold** and _Italic_ text
@@ -80,10 +80,9 @@ src/
 - Horizontal rules
 - LaTeX math (inline and block)
 
-## 📄 License
+##  License
 
 MIT
 
 ---
 
-Made with ❤️ by [kyler004](https://github.com/kyler004)
