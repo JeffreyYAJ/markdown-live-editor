@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Panel, Group, Separator } from 'react-resizable-panels';
 import Topbar from './components/Topbar';
 import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
@@ -21,14 +22,28 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
     <div className="flex flex-col h-screen">
       <Topbar />
 
-      {/* WORKSPACE */}
-      <main className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <Editor markdown={markdown} setMarkdown={setMarkdown} />
-        <Preview markdown={markdown} />
-      </main>
+      <main className="flex-1 w-full flex overflow-hidden">
+        
+        <Group orientation="horizontal" className="w-full h-full">
+          
+          <Panel defaultSize={20} minSize={10} maxSize={40}>
+            <Sidebar />
+          </Panel>
 
-      {/* FOOTER (Tu pourras aussi le séparer plus tard si tu veux !) */}
+          <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
+
+          <Panel defaultSize={40} minSize={20}>
+            <Editor markdown={markdown} setMarkdown={setMarkdown} />
+          </Panel>
+
+          <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
+
+          <Panel defaultSize={40} minSize={20}>
+            <Preview markdown={markdown} />
+          </Panel>
+
+        </Group>
+      </main>
       <footer className="h-6 bg-neon text-black flex justify-between items-center px-4 font-mono text-[0.7rem] font-semibold shrink-0">
         <div className="flex items-center gap-4">
           <span className="font-bold">MAIN*</span>
