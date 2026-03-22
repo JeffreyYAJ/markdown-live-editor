@@ -26,19 +26,19 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
         
         <Group orientation="horizontal" className="w-full h-full">
           
-          <Panel defaultSize={20} minSize={10} maxSize={40}>
+          <Panel defaultSize="20" minSize="15" maxSize="35">
             <Sidebar />
           </Panel>
 
           <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
 
-          <Panel defaultSize={40} minSize={20}>
+          <Panel defaultSize="40" minSize="20">
             <Editor markdown={markdown} setMarkdown={setMarkdown} />
           </Panel>
 
           <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
 
-          <Panel defaultSize={40} minSize={20}>
+          <Panel defaultSize="40" minSize="20">
             <Preview markdown={markdown} />
           </Panel>
 
