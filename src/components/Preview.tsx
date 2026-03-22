@@ -20,8 +20,17 @@ export default function Preview({ markdown }: PreviewProps) {
                       [&_p]:text-[#b0b0b0] [&_p]:mb-4
                       [&_code]:font-mono [&_code]:text-neon [&_code]:break-all
                       [&_ul]:list-none [&_ul]:pl-0 [&_ul]:mb-6
-                      [&_li]:relative [&_li]:pl-6 [&_li]:mb-2 [&_li]:text-[#b0b0b0]
-                      [&_li::before]:content-['—'] [&_li::before]:absolute [&_li::before]:left-0 [&_li::before]:text-neon">
+                      [&_ol]:list-decimal [&_ol]:pl-10 [&_ol]:mb-6 [&_ol]:text-[#b0b0b0]
+                      [&_li]:relative [&_li]:mb-2 [&_li]:text-[#b0b0b0]
+                      [&_ul_li:not(.task-list-item)]:pl-6
+                      [&_ul_li:not(.task-list-item)::before]:content-['—'] [&_ul_li:not(.task-list-item)::before]:absolute [&_ul_li:not(.task-list-item)::before]:left-0 [&_ul_li:not(.task-list-item)::before]:text-neon
+                      [&_li.task-list-item]:list-none [&_li.task-list-item]:pl-1
+                      [&_li_input[type='checkbox']]:mr-2 [&_li_input[type='checkbox']]:accent-neon
+                      [&_table]:w-full [&_table]:border-collapse [&_table]:mb-6 [&_table]:text-sm
+                      [&_th]:text-white [&_th]:font-bold [&_th]:p-3 [&_th]:border [&_th]:border-inactive [&_th]:bg-activity/50 [&_th]:text-left
+                      [&_td]:text-main [&_td]:p-3 [&_td]:border [&_td]:border-inactive
+                      [&_hr]:border-inactive [&_hr]:my-10 [&_hr]:border-t-2
+                      [&_del]:line-through [&_del]:text-dimmed">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {markdown}
         </ReactMarkdown>

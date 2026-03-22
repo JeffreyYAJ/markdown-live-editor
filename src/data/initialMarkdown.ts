@@ -25,4 +25,23 @@ $$\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$$
 
 > This is a blockquote
 
+---
+
+### GFM Features
+- [x] Task list item 1
+- [ ] Task list item 2
+
+Ordered List:
+1. First item
+2. Second item
+3. Third item
+
+~~Strikethrough text~~
+
+| Feature | Support | Status |
+| :--- | :---: | ---: |
+| GFM | Yes | Ready |
+| LaTeX | Yes | Active |
+| Tables | Yes | Styled |
+
 `;
