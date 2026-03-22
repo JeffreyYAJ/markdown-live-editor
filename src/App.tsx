@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Panel, Group, Separator } from 'react-resizable-panels';
+import type { PanelImperativeHandle } from 'react-resizable-panels';
 import Topbar from './components/Topbar';
 import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
@@ -18,6 +19,19 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
 3. Space Grotesk: High-end editorial typography.
 `);
 
+  const sidebarRef = useRef<PanelImperativeHandle>(null);
+
+  const toggleSidebar = () => {
+    const panel = sidebarRef.current;
+    if (panel) {
+      if (panel.isCollapsed()) {
+        panel.expand();
+      } else {
+        panel.collapse();
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <Topbar />
@@ -26,19 +40,27 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
         
         <Group orientation="horizontal" className="w-full h-full">
           
-          <Panel defaultSize={20} minSize={10} maxSize={40}>
-            <Sidebar />
+          <Panel 
+            panelRef={sidebarRef}
+            collapsible={true}
+            collapsedSize="3"
+            defaultSize="20" 
+            minSize="15" 
+            maxSize="35"
+            className="transition-[flex-basis,flex-grow] duration-300 ease-in-out"
+          >
+            <Sidebar onFolderClick={toggleSidebar} />
           </Panel>
 
           <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
 
-          <Panel defaultSize={40} minSize={20}>
+          <Panel defaultSize="40" minSize="20">
             <Editor markdown={markdown} setMarkdown={setMarkdown} />
           </Panel>
 
           <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
 
-          <Panel defaultSize={40} minSize={20}>
+          <Panel defaultSize="40" minSize="20">
             <Preview markdown={markdown} />
           </Panel>
 
