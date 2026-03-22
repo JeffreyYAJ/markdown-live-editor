@@ -1,75 +1,61 @@
-import React, { useState, useCallback } from "react";
-import html2pdf from "html2pdf.js";
-import Header from "./components/Header";
-import EditorPanel from "./components/EditorPanel";
-import PreviewPanel from "./components/PreviewPanel";
-import { initialMarkdown } from "./data/initialMarkdown";
-import { parseMarkdown } from "./utils/markdownParser";
+import { useState } from 'react';
+import { Panel, Group, Separator } from 'react-resizable-panels';
+import Topbar from './components/Topbar';
+import Sidebar from './components/Sidebar';
+import Editor from './components/Editor';
+import Preview from './components/Preview';
 
-const MarkdownEditor: React.FC = () => {
-  const [markdown, setMarkdown] = useState<string>(initialMarkdown);
-  const [preview, setPreview] = useState<string>(
-    parseMarkdown(initialMarkdown),
-  );
-  const [debounceTimer, setDebounceTimer] = useState<ReturnType<
-    typeof setTimeout
-  > | null>(null);
+function App() {
+  const [markdown, setMarkdown] = useState(`# Architecture: The Digital Command Deck
 
-  // Debounced update function
-  const updatePreview = useCallback((text: string) => {
-    const html = parseMarkdown(text);
-    setPreview(html);
-  }, []);
+## Core Identity
 
-  // Handle input change with debouncing
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
-    setMarkdown(newValue);
+The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and high-contrast surface hierarchy. This document outlines the technical specifications for the ARCHITECT_OS interface.
 
-    // Clear existing timer
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    // Set new timer
-    const timer = setTimeout(() => {
-      updatePreview(newValue);
-    }, 300);
-
-    setDebounceTimer(timer);
-  };
-
-  // Handle PDF download
-  const handleDownloadPDF = () => {
-    const element = document.createElement("div");
-    element.innerHTML = preview;
-    element.style.padding = "20px";
-    element.style.fontSize = "16px";
-    element.style.lineHeight = "1.6";
-
-    const options = {
-      margin: 10,
-      filename: "markdown-document.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { orientation: "portrait", unit: "mm", format: "a4" },
-    };
-
-    html2pdf().set(options).from(element).save();
-  };
+### Key Directives
+1. No-Line Rule: Boundaries are defined through subtle tonal shifts.
+2. Phosphor Glow: Active elements emit a soft ambient glow.
+3. Space Grotesk: High-end editorial typography.
+`);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        <Header onDownloadPDF={handleDownloadPDF} />
+    <div className="flex flex-col h-screen">
+      <Topbar />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <EditorPanel markdown={markdown} onChange={handleChange} />
-          <PreviewPanel preview={preview} />
+      <main className="flex-1 w-full flex overflow-hidden">
+        
+        <Group orientation="horizontal" className="w-full h-full">
+          
+          <Panel defaultSize={20} minSize={10} maxSize={40}>
+            <Sidebar />
+          </Panel>
+
+          <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
+
+          <Panel defaultSize={40} minSize={20}>
+            <Editor markdown={markdown} setMarkdown={setMarkdown} />
+          </Panel>
+
+          <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
+
+          <Panel defaultSize={40} minSize={20}>
+            <Preview markdown={markdown} />
+          </Panel>
+
+        </Group>
+      </main>
+      <footer className="h-6 bg-neon text-black flex justify-between items-center px-4 font-mono text-[0.7rem] font-semibold shrink-0">
+        <div className="flex items-center gap-4">
+          <span className="font-bold">MAIN*</span>
+          <span>UTF-8</span>
         </div>
-      </div>
+        <div className="flex items-center gap-4">
+          <span>{`<> MARKDOWN`}</span>
+          <span>LN 14, COL 22</span>
+        </div>
+      </footer>
     </div>
   );
-};
+}
 
-export default MarkdownEditor;
+export default App;
