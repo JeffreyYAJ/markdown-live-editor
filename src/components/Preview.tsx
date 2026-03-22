@@ -8,7 +8,6 @@ interface PreviewProps {
 
 export default function Preview({ markdown }: PreviewProps) {
   return (
-    /* Ajout de min-w-0 et overflow-x-hidden ici */
     <section className="flex flex-col h-full w-full bg-preview overflow-y-auto overflow-x-hidden min-w-0 relative">
       <div className="h-10 flex items-center px-4 font-mono text-[0.7rem] text-inactive tracking-widest uppercase sticky top-0 bg-preview/90 backdrop-blur-sm z-10 shrink-0">
         RENDERED PREVIEW

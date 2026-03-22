@@ -2,10 +2,8 @@ import { Terminal, Folder, Search, Layers3, Settings, Clock4, FileText } from 'l
 
 export default function Sidebar() {
   return (
-    /* h-full est suffisant. Pas de w-full ici pour éviter de forcer la largeur du parent */
     <div className="flex h-full bg-sidebar min-w-0">
       
-      {/* Activity Bar : Reste fixe avec w-12 et ne rétrécit jamais (shrink-0) */}
       <nav className="w-12 bg-activity flex flex-col items-center pt-4 gap-6 shrink-0 border-r border-[#1a1a1a]">
         <div className="flex flex-col items-center gap-1 w-full cursor-pointer text-neon relative z-10 before:absolute before:-inset-y-1 before:inset-x-1 before:bg-neon-bg before:rounded-sm before:-z-10">
           <Terminal size={22} />
