@@ -1,5 +1,14 @@
 export const initialMarkdown =
-  `# Welcome to Markdown Editor
+  `# Architecture: The Digital Command Deck
+
+## Core Identity
+
+The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and high-contrast surface hierarchy. This document outlines the technical specifications for the ARCHITECT_OS interface.
+
+### Key Directives
+1. No-Line Rule: Boundaries are defined through subtle tonal shifts.
+2. Phosphor Glow: Active elements emit a soft ambient glow.
+3. Space Grotesk: High-end editorial typography.
 
 ## Features
 * Live preview with **debounced** input
