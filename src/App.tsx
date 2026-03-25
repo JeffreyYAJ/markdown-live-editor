@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Panel, Group, Separator } from 'react-resizable-panels';
 import type { PanelImperativeHandle } from 'react-resizable-panels';
 import Topbar from './components/Topbar';
@@ -18,6 +18,12 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
 2. Phosphor Glow: Active elements emit a soft ambient glow.
 3. Space Grotesk: High-end editorial typography.
 `);
+
+  const [cursorPos, setCursorPos] = useState({ line: 1, column: 1 });
+
+  const updateCursorPos = useCallback((line: number, column: number) => {
+    setCursorPos({ line, column });
+  }, []);
 
   const sidebarRef = useRef<PanelImperativeHandle>(null);
 
@@ -55,7 +61,11 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
           <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
 
           <Panel defaultSize="40" minSize="20">
-            <Editor markdown={markdown} setMarkdown={setMarkdown} />
+            <Editor 
+              markdown={markdown} 
+              setMarkdown={setMarkdown} 
+              onCursorChange={updateCursorPos}
+            />
           </Panel>
 
           <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
@@ -73,7 +83,7 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
         </div>
         <div className="flex items-center gap-4">
           <span>{`<> MARKDOWN`}</span>
-          <span>LN 14, COL 22</span>
+          <span>LN {cursorPos.line}, COL {cursorPos.column}</span>
         </div>
       </footer>
     </div>
