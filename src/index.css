@@ -30,4 +30,31 @@
     height: 100vh;
     margin: 0;
   }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-topbar);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-inactive);
+    border-radius: 10px;
+    border: 1px solid transparent;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-neon);
+    box-shadow: 0 0 10px var(--color-neon);
+  }
+
+  /* Firefox Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-inactive) var(--color-topbar);
+  }
 }

@@ -1,23 +1,14 @@
-import { useState, useRef, useCallback } from 'react';
-import { Panel, Group, Separator } from 'react-resizable-panels';
-import type { PanelImperativeHandle } from 'react-resizable-panels';
-import Topbar from './components/Topbar';
-import Sidebar from './components/Sidebar';
-import Editor from './components/Editor';
-import Preview from './components/Preview';
+import { useState, useRef, useCallback } from "react";
+import { Panel, Group, Separator } from "react-resizable-panels";
+import type { PanelImperativeHandle } from "react-resizable-panels";
+import Topbar from "./components/Topbar";
+import Sidebar from "./components/Sidebar";
+import Editor from "./components/Editor";
+import Preview from "./components/Preview";
+import { initialMarkdown } from "./data/initialMarkdown";
 
 function App() {
-  const [markdown, setMarkdown] = useState(`# Architecture: The Digital Command Deck
-
-## Core Identity
-
-The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and high-contrast surface hierarchy. This document outlines the technical specifications for the ARCHITECT_OS interface.
-
-### Key Directives
-1. No-Line Rule: Boundaries are defined through subtle tonal shifts.
-2. Phosphor Glow: Active elements emit a soft ambient glow.
-3. Space Grotesk: High-end editorial typography.
-`);
+  const [markdown, setMarkdown] = useState(initialMarkdown);
 
   const [cursorPos, setCursorPos] = useState({ line: 1, column: 1 });
 
@@ -43,15 +34,13 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
       <Topbar />
 
       <main className="flex-1 w-full flex overflow-hidden">
-        
         <Group orientation="horizontal" className="w-full h-full">
-          
-          <Panel 
+          <Panel
             panelRef={sidebarRef}
             collapsible={true}
             collapsedSize="3"
-            defaultSize="20" 
-            minSize="15" 
+            defaultSize="20"
+            minSize="15"
             maxSize="35"
             className="transition-[flex-basis,flex-grow] duration-300 ease-in-out"
           >
@@ -61,9 +50,9 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
           <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
 
           <Panel defaultSize="40" minSize="20">
-            <Editor 
-              markdown={markdown} 
-              setMarkdown={setMarkdown} 
+            <Editor
+              markdown={markdown}
+              setMarkdown={setMarkdown}
               onCursorChange={updateCursorPos}
             />
           </Panel>
@@ -73,7 +62,6 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
           <Panel defaultSize="40" minSize="20">
             <Preview markdown={markdown} />
           </Panel>
-
         </Group>
       </main>
       <footer className="h-6 bg-neon text-black flex justify-between items-center px-4 font-mono text-[0.7rem] font-semibold shrink-0">
@@ -83,7 +71,9 @@ The "Terminal Editorial" aesthetic is defined by its intentional asymmetry and h
         </div>
         <div className="flex items-center gap-4">
           <span>{`<> MARKDOWN`}</span>
-          <span>LN {cursorPos.line}, COL {cursorPos.column}</span>
+          <span>
+            LN {cursorPos.line}, COL {cursorPos.column}
+          </span>
         </div>
       </footer>
     </div>
