@@ -17,8 +17,62 @@
   --color-inactive: #4d4452;
   --color-main: #e0e0e0;
 
+  --color-accent: #00ff41;
+  --color-on-accent: #000000;
+
   --font-mono: "Fira Code", monospace;
   --font-sans: "Space Grotesk", sans-serif;
+}
+
+/* ========= NEON THEME (default) ========= */
+[data-theme="neon"] {
+  --color-topbar: #000000;
+  --color-activity: #120a12;
+  --color-sidebar: #2e1524;
+  --color-editor: #000000;
+  --color-preview: #2e1524;
+  --color-neon: #00ff41;
+  --color-neon-dim: #00ff4140;
+  --color-neon-bg: #1d331e;
+  --color-dimmed: #76637b;
+  --color-inactive: #4d4452;
+  --color-main: #e0e0e0;
+  --color-accent: #00ff41;
+  --color-on-accent: #000000;
+}
+
+/* ========= OBSIDIAN THEME (purple) ========= */
+[data-theme="obsidian"] {
+  --color-topbar: #0d0b14;
+  --color-activity: #13101f;
+  --color-sidebar: #1c1730;
+  --color-editor: #0d0b14;
+  --color-preview: #1c1730;
+  --color-neon: #c084fc;
+  --color-neon-dim: #c084fc40;
+  --color-neon-bg: #2e1f4a;
+  --color-dimmed: #8b7aa8;
+  --color-inactive: #4c3f6e;
+  --color-main: #e2ddee;
+  --color-accent: #c084fc;
+  --color-on-accent: #0d0b14;
+}
+
+/* ========= WHITE THEME (paper) ========= */
+[data-theme="white"] {
+  --color-topbar: #f5f5f0;
+  --color-activity: #ebebea;
+  --color-sidebar: #f0eeea;
+  --color-editor: #fafaf8;
+  --color-preview: #f0eeea;
+  --color-neon: #1a6ef5;
+  --color-neon-dim: #1a6ef540;
+  --color-neon-bg: #ddeaff;
+  --color-dimmed: #6b6b72;
+  --color-inactive: #a0a0aa;
+  --color-main: #1a1a22;
+  --color-accent: #1a6ef5;
+  --color-on-accent: #ffffff;
 }
 
 @layer base {
