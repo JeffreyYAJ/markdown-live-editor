@@ -13,7 +13,7 @@ export default function Preview({ markdown }: PreviewProps) {
         RENDERED PREVIEW
       </div>
       
-      <div className="px-8 pb-12 font-sans text-main leading-relaxed text-[0.95rem] min-w-0 break-words
+      <div className="px-8 pb-12 font-sans text-main leading-relaxed text-[0.95rem] min-w-0 wrap-break-word
                       [&_h1]:text-white [&_h1]:text-[2.8rem] [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4 [&_h1]:border-l-[6px] [&_h1]:border-neon [&_h1]:pl-6 [&_h1]:-ml-[2.1rem]
                       [&_h2]:text-white [&_h2]:text-[1.6rem] [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-4
                       [&_h3]:text-dimmed [&_h3]:text-[1.1rem] [&_h3]:font-semibold [&_h3]:mt-8 [&_h3]:mb-4
@@ -36,7 +36,7 @@ export default function Preview({ markdown }: PreviewProps) {
         </ReactMarkdown>
       </div>
 
-      <div className="absolute top-4 right-8 bg-[#2b1e2e] p-2.5 rounded shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex flex-col gap-4 z-20">
+      <div className="absolute top-4 right-8 p-2.5 rounded shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex flex-col gap-4 z-20" style={{ backgroundColor: "var(--color-sidebar)" }}>
         <FileText size={20} className="text-white cursor-pointer" />
         <Share2 size={20} className="text-dimmed hover:text-white cursor-pointer transition-colors" />
         <Download size={20} className="text-dimmed hover:text-white cursor-pointer transition-colors" />

@@ -6,8 +6,9 @@ import Sidebar from "./components/Sidebar";
 import Editor from "./components/Editor";
 import Preview from "./components/Preview";
 import { initialMarkdown } from "./data/initialMarkdown";
+import { ThemeProvider } from "./context/ThemeProvider";
 
-function App() {
+function AppInner() {
   const [markdown, setMarkdown] = useState(initialMarkdown);
 
   const [cursorPos, setCursorPos] = useState({ line: 1, column: 1 });
@@ -47,7 +48,7 @@ function App() {
             <Sidebar onFolderClick={toggleSidebar} />
           </Panel>
 
-          <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
+          <Separator className="w-1 bg-[#1a1a1a] hover:bg-(--color-neon) active:bg-(--color-neon) transition-colors cursor-col-resize shrink-0" />
 
           <Panel defaultSize="40" minSize="20">
             <Editor
@@ -57,14 +58,20 @@ function App() {
             />
           </Panel>
 
-          <Separator className="w-1 bg-[#1a1a1a] hover:bg-neon active:bg-neon transition-colors cursor-col-resize shrink-0" />
+          <Separator className="w-1 bg-[#1a1a1a] hover:bg-(--color-neon) active:bg-(--color-neon) transition-colors cursor-col-resize shrink-0" />
 
           <Panel defaultSize="40" minSize="20">
             <Preview markdown={markdown} />
           </Panel>
         </Group>
       </main>
-      <footer className="h-6 bg-neon text-black flex justify-between items-center px-4 font-mono text-[0.7rem] font-semibold shrink-0">
+      <footer
+        className="h-6 flex justify-between items-center px-4 font-mono text-[0.7rem] font-semibold shrink-0"
+        style={{
+          backgroundColor: "var(--color-neon)",
+          color: "var(--color-on-accent)",
+        }}
+      >
         <div className="flex items-center gap-4">
           <span className="font-bold">MAIN*</span>
           <span>UTF-8</span>
@@ -77,6 +84,14 @@ function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppInner />
+    </ThemeProvider>
   );
 }
 
