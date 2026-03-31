@@ -2,7 +2,7 @@ import { Search as SearchIcon, PanelRight, Printer, LayoutGrid } from 'lucide-re
 
 export default function Topbar() {
   return (
-    <header className="flex justify-between items-center px-4 h-10 bg-topbar font-mono text-xs border-b border-[#1a1a1a] shrink-0">
+    <header className="flex justify-between items-center px-4 h-10 bg-topbar font-mono text-xs border-b border-surface-dim shrink-0">
       <div className="text-neon font-semibold drop-shadow-[0_0_8px_rgba(0,255,65,0.4)]">ARCHITECT_OS</div>
       
       <div className="flex gap-4 text-dimmed">
@@ -16,7 +16,7 @@ export default function Topbar() {
       <div className="flex items-center gap-2">
         <div className="relative">
           <SearchIcon size={16} className="absolute left-2 top-1.5 text-inactive"/>
-          <input type="text" placeholder="Global Search..." className="bg-[#1a141a] border-none text-white rounded-[2px] py-1 pr-2 pl-7 w-56 font-mono text-xs outline-none focus:ring-1 focus:ring-neon-dim" />
+          <input type="text" placeholder="Global Search..." className="bg-input-bg border border-surface-dim text-main rounded-[2px] py-1 pr-2 pl-7 w-56 font-mono text-xs outline-none focus:ring-1 focus:ring-neon-dim" />
         </div>
         <button className="px-3 py-1 rounded-[2px] font-semibold uppercase tracking-wider bg-neon text-black hover:bg-[#00e63a] transition-colors">RUN</button>
         <button className="px-3 py-1 rounded-[2px] font-semibold uppercase tracking-wider bg-transparent text-neon border border-neon-dim hover:bg-neon-dim transition-colors">PREVIEW</button>

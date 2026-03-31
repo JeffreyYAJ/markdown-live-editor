@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Terminal,
   Folder,
@@ -7,15 +8,18 @@ import {
   Clock4,
   FileText,
 } from "lucide-react";
+import SettingsMenu from "./SettingsMenu";
 
 interface SidebarProps {
   onFolderClick?: () => void;
 }
 
 export default function Sidebar({ onFolderClick }: SidebarProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className="flex h-full bg-sidebar min-w-0 overflow-hidden ">
-      <nav className="w-12 bg-activity flex flex-col items-center pt-4 gap-6 shrink-0 border-r border-[#1a1a1a]">
+      <nav className="w-12 bg-activity flex flex-col items-center pt-4 gap-6 shrink-0 border-r border-surface-dim">
         <div className="flex flex-col items-center gap-1 w-full cursor-pointer text-neon relative z-10 before:absolute before:-inset-y-1 before:inset-x-1 before:bg-neon-bg before:rounded-sm before:-z-10">
           <Terminal size={22} />
           <div className="font-mono text-[0.55rem] text-neon drop-shadow-[0_0_5px_rgba(0,255,65,0.6)] text-center leading-tight">
@@ -34,9 +38,27 @@ export default function Sidebar({ onFolderClick }: SidebarProps) {
         <div className="flex flex-col items-center gap-1 w-full cursor-pointer text-inactive hover:text-dimmed transition-colors">
           <Layers3 size={22} />
         </div>
-        <div className="flex flex-col items-center gap-1 w-full cursor-pointer text-inactive hover:text-dimmed transition-colors mt-auto">
-          <Settings size={22} />
+
+        {/* Settings icon — opens context menu */}
+        <div className="relative flex flex-col items-center gap-1 w-full cursor-pointer mt-auto">
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            className={`flex flex-col items-center w-full py-1 transition-colors ${
+              menuOpen
+                ? "text-(--color-neon)"
+                : "text-inactive hover:text-dimmed"
+            }`}
+            aria-label="Settings"
+          >
+            <Settings
+              size={22}
+              style={menuOpen ? { filter: "drop-shadow(0 0 6px var(--color-neon))" } : undefined}
+            />
+          </button>
+
+          {menuOpen && <SettingsMenu onClose={() => setMenuOpen(false)} />}
         </div>
+
         <div className="flex flex-col items-center w-full cursor-pointer text-inactive hover:text-dimmed transition-colors mb-4">
           <Clock4 size={22} />
         </div>
