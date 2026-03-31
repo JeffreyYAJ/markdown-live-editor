@@ -16,9 +16,13 @@
   --color-dimmed: #76637b;
   --color-inactive: #4d4452;
   --color-main: #e0e0e0;
+  --color-heading: #ffffff;
 
   --color-accent: #00ff41;
   --color-on-accent: #000000;
+  
+  --color-input-bg: #1a141a;
+  --color-surface-dim: #1a1a1a;
 
   --font-mono: "Fira Code", monospace;
   --font-sans: "Space Grotesk", sans-serif;
@@ -37,8 +41,11 @@
   --color-dimmed: #76637b;
   --color-inactive: #4d4452;
   --color-main: #e0e0e0;
+  --color-heading: #ffffff;
   --color-accent: #00ff41;
   --color-on-accent: #000000;
+  --color-input-bg: #1a141a;
+  --color-surface-dim: #1a1a1a;
 }
 
 /* ========= OBSIDIAN THEME (purple) ========= */
@@ -54,8 +61,11 @@
   --color-dimmed: #8b7aa8;
   --color-inactive: #4c3f6e;
   --color-main: #e2ddee;
+  --color-heading: #ffffff;
   --color-accent: #c084fc;
   --color-on-accent: #0d0b14;
+  --color-input-bg: #1a1626;
+  --color-surface-dim: #1e1b2e;
 }
 
 /* ========= WHITE THEME (paper) ========= */
@@ -71,8 +81,11 @@
   --color-dimmed: #6b6b72;
   --color-inactive: #a0a0aa;
   --color-main: #1a1a22;
+  --color-heading: #000000;
   --color-accent: #1a6ef5;
   --color-on-accent: #ffffff;
+  --color-input-bg: #ffffff;
+  --color-surface-dim: #e4e4e7;
 }
 
 @layer base {

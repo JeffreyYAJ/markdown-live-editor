@@ -19,7 +19,7 @@ export default function Sidebar({ onFolderClick }: SidebarProps) {
 
   return (
     <div className="flex h-full bg-sidebar min-w-0 overflow-hidden ">
-      <nav className="w-12 bg-activity flex flex-col items-center pt-4 gap-6 shrink-0 border-r border-[#1a1a1a]">
+      <nav className="w-12 bg-activity flex flex-col items-center pt-4 gap-6 shrink-0 border-r border-surface-dim">
         <div className="flex flex-col items-center gap-1 w-full cursor-pointer text-neon relative z-10 before:absolute before:-inset-y-1 before:inset-x-1 before:bg-neon-bg before:rounded-sm before:-z-10">
           <Terminal size={22} />
           <div className="font-mono text-[0.55rem] text-neon drop-shadow-[0_0_5px_rgba(0,255,65,0.6)] text-center leading-tight">

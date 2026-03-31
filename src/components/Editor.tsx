@@ -37,7 +37,7 @@ export default function Editor({ markdown, setMarkdown, onCursorChange }: Editor
         INDEX.MD {isEditing && <span className="ml-2.5 text-[#a11c2e] animate-pulse">EDITING...</span>}
       </div>
       <textarea 
-        className="flex-1 w-full min-w-0 bg-transparent border-none font-mono text-sm p-4 resize-none outline-none leading-relaxed text-[#e0e0e0] caret-neon"
+        className="flex-1 w-full min-w-0 bg-transparent border-none font-mono text-sm p-4 resize-none outline-none leading-relaxed text-(--color-main) caret-neon"
         value={markdown}
         onChange={(e) => {
           setMarkdown(e.target.value);
