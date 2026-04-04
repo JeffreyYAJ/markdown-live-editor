@@ -125,3 +125,94 @@
     scrollbar-color: var(--color-inactive) var(--color-topbar);
   }
 }
+
+/* ========= EDITOR SYNTAX HIGHLIGHTING ========= */
+.markdown-editor {
+  background: transparent !important;
+}
+
+.markdown-editor textarea {
+  caret-color: var(--color-neon) !important;
+}
+
+.markdown-editor .token.header {
+  color: var(--color-neon);
+  font-weight: 700;
+}
+
+.markdown-editor .token.title {
+  color: var(--color-neon);
+  font-weight: 700;
+}
+
+.markdown-editor .token.bold {
+  color: var(--color-heading);
+  font-weight: 700;
+}
+
+.markdown-editor .token.italic {
+  color: var(--color-heading);
+  font-style: italic;
+}
+
+.markdown-editor .token.punctuation {
+  color: var(--color-dimmed);
+}
+
+.markdown-editor .token.url,
+.markdown-editor .token.link,
+.markdown-editor .token.url-reference {
+  color: var(--color-neon);
+}
+
+.markdown-editor .token.code {
+  color: var(--color-accent);
+  opacity: 0.9;
+}
+
+.markdown-editor .token.code-snippet {
+  color: var(--color-accent);
+  background: var(--color-neon-dim);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.markdown-editor .token.list,
+.markdown-editor .token.blockquote,
+.markdown-editor .token.hr {
+  color: var(--color-accent);
+}
+
+.markdown-editor .token.comment {
+  color: var(--color-inactive);
+}
+
+.markdown-editor .token.content {
+  color: var(--color-main);
+}
+
+/* Ensure the textarea stays on top and handles interactions */
+.markdown-editor textarea {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Custom Scrollbar for the editor container */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-topbar);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-inactive);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neon);
+}

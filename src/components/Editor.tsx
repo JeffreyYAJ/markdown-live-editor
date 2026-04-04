@@ -1,4 +1,8 @@
 import { useState, useRef, useEffect } from "react";
+import CodeEditor from "react-simple-code-editor";
+import { highlight, languages } from "prismjs";
+import "prismjs/components/prism-markdown";
+import "prismjs/themes/prism.css"; // Basic styles, we will override most of it
 
 interface EditorProps {
   markdown: string;
@@ -21,9 +25,10 @@ export default function Editor({
   }, []);
 
   const handleSelectionChange = (
-    e: React.SyntheticEvent<HTMLTextAreaElement>,
+    e: React.SyntheticEvent<HTMLTextAreaElement | HTMLDivElement>,
   ) => {
-    const textarea = e.currentTarget;
+    const textarea = e.target as HTMLTextAreaElement;
+    if (!textarea.value) return;
     const textBeforeCursor = textarea.value.slice(0, textarea.selectionStart);
     const lines = textBeforeCursor.split("\n");
     const line = lines.length;
@@ -38,8 +43,8 @@ export default function Editor({
   };
 
   return (
-    <section className="flex flex-col h-full bg-editor min-w-0">
-      <div className="h-10 flex items-center px-4 font-mono text-[0.7rem] text-inactive tracking-widest uppercase shrink-0">
+    <section className="flex flex-col h-full bg-editor min-w-0 overflow-hidden">
+      <div className="h-10 flex items-center px-4 font-mono text-[0.7rem] text-inactive tracking-widest uppercase shrink-0 border-b border-white/5">
         INDEX.MD{" "}
         {isEditing && (
           <span className="ml-2.5 text-[#a11c2e] animate-pulse">
@@ -47,19 +52,27 @@ export default function Editor({
           </span>
         )}
       </div>
-      <textarea
-        className="flex-1 w-full min-w-0 bg-transparent border-none font-mono text-sm p-4 resize-none outline-none leading-relaxed text-main caret-neon"
-        value={markdown}
-        onChange={(e) => {
-          setMarkdown(e.target.value);
-          handleSelectionChange(e);
-          handleInput();
-        }}
-        onSelect={handleSelectionChange}
-        onClick={handleSelectionChange}
-        onKeyUp={handleSelectionChange}
-        spellCheck={false}
-      />
+      <div className="flex-1 w-full overflow-auto custom-scrollbar">
+        <CodeEditor
+          value={markdown}
+          onValueChange={(code) => {
+            setMarkdown(code);
+            handleInput();
+          }}
+          highlight={(code) => highlight(code, languages.markdown, "markdown")}
+          padding={20}
+          onSelect={handleSelectionChange}
+          onClick={handleSelectionChange}
+          onKeyUp={handleSelectionChange}
+          className="markdown-editor font-mono text-sm leading-relaxed text-main min-h-full"
+          textareaClassName="outline-none"
+          textareaId="code-editor"
+          style={{
+            fontFamily: 'var(--font-mono)',
+            minHeight: '100%',
+          }}
+        />
+      </div>
     </section>
   );
 }
