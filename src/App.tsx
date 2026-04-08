@@ -10,14 +10,58 @@ import { ThemeProvider } from "./context/ThemeProvider";
 
 function AppInner() {
   const [markdown, setMarkdown] = useState(initialMarkdown);
-
   const [cursorPos, setCursorPos] = useState({ line: 1, column: 1 });
+
+  const editorRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLElement>(null);
+  const scrollingRef = useRef<"editor" | "preview" | null>(null);
+  const scrollTimeoutRef = useRef<number | null>(null);
 
   const updateCursorPos = useCallback((line: number, column: number) => {
     setCursorPos({ line, column });
   }, []);
 
   const sidebarRef = useRef<PanelImperativeHandle>(null);
+
+  const handleEditorScroll = useCallback(() => {
+    if (scrollingRef.current === "preview") return;
+
+    const editor = editorRef.current;
+    const preview = previewRef.current;
+
+    if (editor && preview) {
+      scrollingRef.current = "editor";
+      const scrollPercentage =
+        editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
+      preview.scrollTop =
+        scrollPercentage * (preview.scrollHeight - preview.clientHeight);
+
+      if (scrollTimeoutRef.current) window.clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = window.setTimeout(() => {
+        scrollingRef.current = null;
+      }, 50);
+    }
+  }, []);
+
+  const handlePreviewScroll = useCallback(() => {
+    if (scrollingRef.current === "editor") return;
+
+    const editor = editorRef.current;
+    const preview = previewRef.current;
+
+    if (editor && preview) {
+      scrollingRef.current = "preview";
+      const scrollPercentage =
+        preview.scrollTop / (preview.scrollHeight - preview.clientHeight);
+      editor.scrollTop =
+        scrollPercentage * (editor.scrollHeight - editor.clientHeight);
+
+      if (scrollTimeoutRef.current) window.clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = window.setTimeout(() => {
+        scrollingRef.current = null;
+      }, 50);
+    }
+  }, []);
 
   const toggleSidebar = () => {
     const panel = sidebarRef.current;
@@ -52,16 +96,22 @@ function AppInner() {
 
           <Panel defaultSize="40" minSize="20">
             <Editor
+              ref={editorRef}
               markdown={markdown}
               setMarkdown={setMarkdown}
               onCursorChange={updateCursorPos}
+              onScroll={handleEditorScroll}
             />
           </Panel>
 
           <Separator className="w-1 bg-[#1a1a1a] hover:bg-(--color-neon) active:bg-(--color-neon) transition-colors cursor-col-resize shrink-0" />
 
           <Panel defaultSize="40" minSize="20">
-            <Preview markdown={markdown} />
+            <Preview
+              ref={previewRef}
+              markdown={markdown}
+              onScroll={handlePreviewScroll}
+            />
           </Panel>
         </Group>
       </main>
