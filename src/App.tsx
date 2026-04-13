@@ -165,7 +165,7 @@ function AppInner() {
           maxSize={55}
           onResize={(size) => {
             // Sync open state based on panel size
-            if (size.sizePercentage === 0) setTerminalOpen(false);
+            if (size === 0) setTerminalOpen(false);
             else setTerminalOpen(true);
           }}
         >

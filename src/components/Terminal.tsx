@@ -45,7 +45,7 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
   const [input, setInput] = useState("");
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
   const [histIdx, setHistIdx] = useState(-1);
-  const [isMinimized, setIsMinimized] = useState(false);
+
 
   const outputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -253,17 +253,7 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
 
         {/* Right: controls */}
         <div className="flex items-center gap-1">
-          <button
-            onClick={(e) => { e.stopPropagation(); setIsMinimized((v) => !v); }}
-            className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors"
-            style={{ color: "var(--color-inactive)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-main)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-inactive)")}
-            title="Minimize"
-            aria-label="Minimize terminal"
-          >
-            <Minus size={13} />
-          </button>
+
           <button
             onClick={(e) => { e.stopPropagation(); onClose(); }}
             className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors"
@@ -279,9 +269,8 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
       </div>
 
       {/* Output area */}
-      {!isMinimized && (
-        <>
-          <div
+      <>
+        <div
             ref={outputRef}
             className="flex-1 overflow-y-auto px-4 py-3 font-mono text-[0.78rem] leading-relaxed custom-scrollbar"
           >
@@ -319,7 +308,6 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
             />
           </div>
         </>
-      )}
     </div>
   );
 }
