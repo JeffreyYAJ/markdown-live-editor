@@ -1,6 +1,11 @@
-import { Search as SearchIcon, PanelRight, Printer, LayoutGrid } from 'lucide-react';
+import { Search as SearchIcon, PanelRight, Printer, LayoutGrid, TerminalSquare } from 'lucide-react';
 
-export default function Topbar() {
+interface TopbarProps {
+  terminalOpen?: boolean;
+  onToggleTerminal?: () => void;
+}
+
+export default function Topbar({ terminalOpen = false, onToggleTerminal }: TopbarProps) {
   return (
     <header className="flex justify-between items-center px-4 h-10 bg-topbar font-mono text-xs border-b border-surface-dim shrink-0">
       <div className="text-neon font-semibold drop-shadow-[0_0_8px_rgba(0,255,65,0.4)]">ARCHITECT_OS</div>
@@ -20,10 +25,23 @@ export default function Topbar() {
         </div>
         <button className="px-3 py-1 rounded-[2px] font-semibold uppercase tracking-wider bg-neon text-black hover:bg-[#00e63a] transition-colors">RUN</button>
         <button className="px-3 py-1 rounded-[2px] font-semibold uppercase tracking-wider bg-transparent text-neon border border-neon-dim hover:bg-neon-dim transition-colors">PREVIEW</button>
-        <div className="flex text-dimmed gap-2.5 ml-2">
+        <div className="flex text-dimmed gap-2.5 ml-2 items-center">
            <PanelRight size={18} className="cursor-pointer hover:text-main transition-colors"/>
            <Printer size={18} className="cursor-pointer hover:text-main transition-colors"/>
            <LayoutGrid size={18} className="cursor-pointer hover:text-main transition-colors"/>
+           {/* Terminal toggle */}
+           <button
+             onClick={onToggleTerminal}
+             title="Toggle Terminal (Ctrl+`)"
+             aria-label="Toggle terminal"
+             className={`cursor-pointer transition-colors p-0.5 rounded-sm ${
+               terminalOpen
+                 ? 'text-neon drop-shadow-[0_0_6px_var(--color-neon)]'
+                 : 'text-dimmed hover:text-main'
+             }`}
+           >
+             <TerminalSquare size={18} />
+           </button>
         </div>
       </div>
     </header>

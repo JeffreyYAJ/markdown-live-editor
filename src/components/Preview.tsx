@@ -1,14 +1,24 @@
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FileText, Share2, Download, MoreVertical } from "lucide-react";
 
 interface PreviewProps {
   markdown: string;
+  onScroll?: (e: React.UIEvent<HTMLElement>) => void;
 }
 
-export default function Preview({ markdown }: PreviewProps) {
+const Preview = forwardRef<HTMLElement, PreviewProps>(({ markdown, onScroll }, ref) => {
+  const containerRef = useRef<HTMLElement>(null);
+
+  useImperativeHandle(ref, () => containerRef.current as HTMLElement);
+
   return (
-    <section className="flex flex-col h-full w-full bg-preview overflow-y-auto overflow-x-hidden min-w-0 relative">
+    <section
+      ref={containerRef}
+      onScroll={onScroll}
+      className="flex flex-col h-full w-full bg-preview overflow-y-auto overflow-x-hidden min-w-0 relative"
+    >
       <div className="h-10 flex items-center px-4 font-mono text-[0.7rem] text-inactive tracking-widest uppercase sticky top-0 bg-preview/90 backdrop-blur-sm z-10 shrink-0">
         RENDERED PREVIEW
       </div>
@@ -56,4 +66,8 @@ export default function Preview({ markdown }: PreviewProps) {
       </div>
     </section>
   );
-}
+});
+
+Preview.displayName = "Preview";
+
+export default Preview;

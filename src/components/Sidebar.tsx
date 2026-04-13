@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Terminal,
   Folder,
@@ -16,6 +16,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onFolderClick }: SidebarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const settingsBtnRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="flex h-full bg-sidebar min-w-0 overflow-hidden ">
@@ -42,6 +43,7 @@ export default function Sidebar({ onFolderClick }: SidebarProps) {
         {/* Settings icon — opens context menu */}
         <div className="relative flex flex-col items-center gap-1 w-full cursor-pointer mt-auto">
           <button
+            ref={settingsBtnRef}
             onClick={() => setMenuOpen((o) => !o)}
             className={`flex flex-col items-center w-full py-1 transition-colors ${
               menuOpen
@@ -56,7 +58,7 @@ export default function Sidebar({ onFolderClick }: SidebarProps) {
             />
           </button>
 
-          {menuOpen && <SettingsMenu onClose={() => setMenuOpen(false)} />}
+          {menuOpen && <SettingsMenu onClose={() => setMenuOpen(false)} buttonRef={settingsBtnRef} />}
         </div>
 
         <div className="flex flex-col items-center w-full cursor-pointer text-inactive hover:text-dimmed transition-colors mb-4">
