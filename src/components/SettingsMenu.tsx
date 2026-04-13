@@ -1,9 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { User, Settings, Puzzle, ListTodo, Palette, Check } from "lucide-react";
 import { useTheme, type Theme } from "../context/ThemeContext";
 
 interface SettingsMenuProps {
   onClose: () => void;
+  buttonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
 const menuItems = [
@@ -39,9 +41,20 @@ const themes: {
   },
 ];
 
-export default function SettingsMenu({ onClose }: SettingsMenuProps) {
+export default function SettingsMenu({ onClose, buttonRef }: SettingsMenuProps) {
   const { theme, setTheme } = useTheme();
   const menuRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ left: number; bottom: number } | null>(null);
+
+  useEffect(() => {
+    if (buttonRef?.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setCoords({
+        left: rect.right + 8,
+        bottom: window.innerHeight - rect.bottom,
+      });
+    }
+  }, [buttonRef]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -59,14 +72,18 @@ export default function SettingsMenu({ onClose }: SettingsMenuProps) {
     };
   }, [onClose]);
 
-  return (
+  if (!coords) return null;
+
+  return createPortal(
     <div
       ref={menuRef}
-      className="absolute left-full bottom-0 ml-2 z-50 w-64 rounded-lg shadow-2xl overflow-hidden
+      className="fixed z-[9999] w-64 rounded-lg shadow-2xl overflow-hidden
                  border border-inactive
                  bg-sidebar
                  animate-in"
       style={{
+        left: coords.left,
+        bottom: coords.bottom,
         animation: "slideIn 0.18s cubic-bezier(0.16,1,0.3,1) both",
       }}
     >
@@ -153,6 +170,7 @@ export default function SettingsMenu({ onClose }: SettingsMenuProps) {
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
