@@ -104,11 +104,11 @@ function AppInner() {
       <Topbar terminalOpen={terminalOpen} onToggleTerminal={toggleTerminal} />
 
       {/* Vertical split: main workspace on top, terminal on bottom */}
-      <Group direction="vertical" className="flex-1 overflow-hidden">
+      <Group orientation="vertical" className="flex-1 overflow-hidden">
         {/* Top: main workspace */}
         <Panel defaultSize={100} minSize={30}>
           <main className="flex w-full h-full overflow-hidden">
-            <Group direction="horizontal" className="w-full h-full">
+            <Group orientation="horizontal" className="w-full h-full">
               <Panel
                 panelRef={sidebarPanelRef}
                 collapsible
@@ -116,7 +116,6 @@ function AppInner() {
                 defaultSize={20}
                 minSize={15}
                 maxSize={35}
-                className="transition-[flex-basis,flex-grow] duration-300 ease-in-out"
               >
                 <Sidebar onFolderClick={toggleSidebar} />
               </Panel>
