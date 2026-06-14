@@ -11,13 +11,39 @@ import Preview from "./components/Preview";
 import Terminal from "./components/Terminal";
 import { initialMarkdown } from "./data/initialMarkdown";
 import { ThemeProvider } from "./context/ThemeProvider";
+import { useTheme, type Theme } from "./context/ThemeContext";
  
+const DOC_STORAGE_KEY = "architect-document";
+
 function AppInner() {
-  const [markdown, setMarkdown] = useState(initialMarkdown);
+  const [markdown, setMarkdown] = useState<string>(() => {
+    try {
+      const stored = localStorage.getItem(DOC_STORAGE_KEY);
+      return stored ?? initialMarkdown;
+    } catch {
+      return initialMarkdown;
+    }
+  });
   const [cursorPos, setCursorPos] = useState({ line: 1, column: 1 });
   const [terminalOpen, setTerminalOpen] = useState(false);
 
   const { setTheme } = useTheme();
+
+  // Persist the document to localStorage (debounced)
+  const saveTimeoutRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = window.setTimeout(() => {
+      try {
+        localStorage.setItem(DOC_STORAGE_KEY, markdown);
+      } catch {
+        // ignore quota / privacy-mode write failures
+      }
+    }, 300);
+    return () => {
+      if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
+    };
+  }, [markdown]);
 
   // Refs for sync-scroll
   const editorRef = useRef<HTMLDivElement>(null);
@@ -41,9 +67,12 @@ function AppInner() {
     const preview = previewRef.current;
     if (editor && preview) {
       scrollingRef.current = "editor";
-      const pct =
-        editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
-      preview.scrollTop = pct * (preview.scrollHeight - preview.clientHeight);
+      const editorScrollable = editor.scrollHeight - editor.clientHeight;
+      if (editorScrollable > 0) {
+        const pct = editor.scrollTop / editorScrollable;
+        preview.scrollTop =
+          pct * (preview.scrollHeight - preview.clientHeight);
+      }
       if (scrollTimeoutRef.current)
         window.clearTimeout(scrollTimeoutRef.current);
       scrollTimeoutRef.current = window.setTimeout(() => {
@@ -58,9 +87,11 @@ function AppInner() {
     const preview = previewRef.current;
     if (editor && preview) {
       scrollingRef.current = "preview";
-      const pct =
-        preview.scrollTop / (preview.scrollHeight - preview.clientHeight);
-      editor.scrollTop = pct * (editor.scrollHeight - editor.clientHeight);
+      const previewScrollable = preview.scrollHeight - preview.clientHeight;
+      if (previewScrollable > 0) {
+        const pct = preview.scrollTop / previewScrollable;
+        editor.scrollTop = pct * (editor.scrollHeight - editor.clientHeight);
+      }
       if (scrollTimeoutRef.current)
         window.clearTimeout(scrollTimeoutRef.current);
       scrollTimeoutRef.current = window.setTimeout(() => {
@@ -79,24 +110,19 @@ function AppInner() {
   // ── Terminal (uses Group-level setLayout for reliability) ────
   const toggleTerminal = useCallback(() => {
     const group = verticalGroupRef.current;
-    if (!group) { console.warn("no group ref"); return; }
+    if (!group) return;
     const layout = group.getLayout();
-    console.log("current layout:", layout);
     const currentTerminalPct = layout["terminal"] ?? 0;
 
     if (currentTerminalPct <= 1) {
       // Open terminal at remembered size
       const target = lastTerminalPct.current;
-      const requested = { workspace: 100 - target, terminal: target };
-      console.log("requesting layout:", requested);
-      const applied = group.setLayout(requested);
-      console.log("applied layout:", applied);
+      group.setLayout({ workspace: 100 - target, terminal: target });
       setTerminalOpen(true);
     } else {
       // Close terminal — save current size first
       lastTerminalPct.current = currentTerminalPct;
-      const applied = group.setLayout({ workspace: 100, terminal: 0 });
-      console.log("closed, applied:", applied);
+      group.setLayout({ workspace: 100, terminal: 0 });
       setTerminalOpen(false);
     }
   }, []);

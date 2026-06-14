@@ -5,7 +5,7 @@ import {
   useCallback,
   type KeyboardEvent,
 } from "react";
-import { X, TerminalSquare, Minus } from "lucide-react";
+import { X, TerminalSquare } from "lucide-react";
 import type { Theme } from "../context/ThemeContext";
 
 interface TerminalLine {
@@ -167,7 +167,18 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
             pushLines(mkLine("info", "  Preparing HTML export..."));
             setTimeout(() => {
               const container = document.querySelector(".preview-content");
-              const html = `<!DOCTYPE html><html><body>${container?.innerHTML ?? markdown}</body></html>`;
+              const body = container?.innerHTML ?? markdown;
+              const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>document</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<style>body{max-width:800px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.6;}pre{background:#f4f4f4;padding:1rem;overflow:auto;border-radius:6px;}code{font-family:monospace;}table{border-collapse:collapse;}th,td{border:1px solid #ddd;padding:.5rem;}</style>
+</head>
+<body>${body}</body>
+</html>`;
               const blob = new Blob([html], { type: "text/html" });
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a");

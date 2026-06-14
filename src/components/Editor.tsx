@@ -60,11 +60,11 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(
         >
           <CodeEditor
             value={markdown}
-            onValueChange={(code) => {
+            onValueChange={(code: string) => {
               setMarkdown(code);
               handleInput();
             }}
-            highlight={(code) => highlight(code, languages.markdown, "markdown")}
+            highlight={(code: string) => highlight(code, languages.markdown, "markdown")}
             padding={20}
             onSelect={handleSelectionChange}
             onClick={handleSelectionChange}

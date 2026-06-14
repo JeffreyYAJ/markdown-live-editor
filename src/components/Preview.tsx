@@ -1,6 +1,9 @@
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { FileText, Share2, Download, MoreVertical } from "lucide-react";
 
 interface PreviewProps {
@@ -24,7 +27,7 @@ const Preview = forwardRef<HTMLElement, PreviewProps>(({ markdown, onScroll }, r
       </div>
 
       <div
-        className="px-8 pb-12 font-sans text-main leading-relaxed text-[0.95rem] min-w-0 wrap-break-word
+        className="preview-content px-8 pb-12 font-sans text-main leading-relaxed text-[0.95rem] min-w-0 wrap-break-word
                       [&_h1]:text-heading [&_h1]:text-[2.8rem] [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4 [&_h1]:border-l-[6px] [&_h1]:border-neon [&_h1]:pl-6 [&_h1]:-ml-[2.1rem]
                       [&_h2]:text-heading [&_h2]:text-[1.6rem] [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-4
                       [&_h3]:text-dimmed [&_h3]:text-[1.1rem] [&_h3]:font-semibold [&_h3]:mt-8 [&_h3]:mb-4
@@ -43,7 +46,12 @@ const Preview = forwardRef<HTMLElement, PreviewProps>(({ markdown, onScroll }, r
                       [&_hr]:border-inactive [&_hr]:my-10 [&_hr]:border-t-2
                       [&_del]:line-through [&_del]:text-dimmed"
       >
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeKatex]}
+        >
+          {markdown}
+        </ReactMarkdown>
       </div>
 
       <div
