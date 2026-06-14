@@ -161,23 +161,23 @@ function AppInner() {
         groupRef={verticalGroupRef}
       >
         {/* Top: main workspace */}
-        <Panel id="workspace" defaultSize={100} minSize={10}>
+        <Panel id="workspace" defaultSize="100%" minSize="15%">
           <main className="flex w-full h-full overflow-hidden">
             <Group orientation="horizontal" className="w-full h-full">
               <Panel
                 panelRef={sidebarPanelRef}
                 collapsible
-                collapsedSize={3}
-                defaultSize={20}
-                minSize={10}
-                maxSize={35}
+                collapsedSize="48px"
+                defaultSize="240px"
+                minSize="160px"
+                maxSize="35%"
               >
                 <Sidebar onFolderClick={toggleSidebar} />
               </Panel>
 
               <Separator className="w-1 bg-[#1a1a1a] hover:bg-(--color-neon) active:bg-(--color-neon) transition-colors cursor-col-resize shrink-0" />
 
-              <Panel defaultSize={40} minSize={10}>
+              <Panel defaultSize="41%" minSize="15%">
                 <Editor
                   ref={editorRef}
                   markdown={markdown}
@@ -189,7 +189,7 @@ function AppInner() {
 
               <Separator className="w-1 bg-[#1a1a1a] hover:bg-(--color-neon) active:bg-(--color-neon) transition-colors cursor-col-resize shrink-0" />
 
-              <Panel defaultSize={40} minSize={10}>
+              <Panel defaultSize="41%" minSize="15%">
                 <Preview
                   ref={previewRef}
                   markdown={markdown}
@@ -212,9 +212,9 @@ function AppInner() {
         {/* Bottom: terminal panel */}
         <Panel
           id="terminal"
-          defaultSize={0}
-          minSize={0}
-          maxSize={85}
+          defaultSize="0%"
+          minSize="0%"
+          maxSize="85%"
           onResize={(panelSize) => {
             const pct = panelSize.asPercentage;
             if (pct <= 1) {
