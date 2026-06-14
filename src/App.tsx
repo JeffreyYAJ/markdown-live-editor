@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { Panel, Group, Separator } from "react-resizable-panels";
 import type {
   PanelImperativeHandle,
@@ -9,52 +9,44 @@ import Sidebar from "./components/Sidebar";
 import Editor from "./components/Editor";
 import Preview from "./components/Preview";
 import Terminal from "./components/Terminal";
-import { initialMarkdown } from "./data/initialMarkdown";
 import { ThemeProvider } from "./context/ThemeProvider";
 import { useTheme, type Theme } from "./context/ThemeContext";
- 
-const DOC_STORAGE_KEY = "architect-document";
+import { DocumentsProvider } from "./context/DocumentsProvider";
+import { useDocuments } from "./context/DocumentsContext";
+import { countStats } from "./utils/markdown";
+
+export type ViewMode = "split" | "editor" | "preview";
 
 function AppInner() {
-  const [markdown, setMarkdown] = useState<string>(() => {
-    try {
-      const stored = localStorage.getItem(DOC_STORAGE_KEY);
-      return stored ?? initialMarkdown;
-    } catch {
-      return initialMarkdown;
-    }
-  });
+  const {
+    activeDoc,
+    updateActiveContent,
+    createDocument,
+    lastSavedAt,
+  } = useDocuments();
+  const markdown = activeDoc?.content ?? "";
+  const setMarkdown = updateActiveContent;
+
   const [cursorPos, setCursorPos] = useState({ line: 1, column: 1 });
   const [terminalOpen, setTerminalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("split");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { setTheme } = useTheme();
-
-  // Persist the document to localStorage (debounced)
-  const saveTimeoutRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = window.setTimeout(() => {
-      try {
-        localStorage.setItem(DOC_STORAGE_KEY, markdown);
-      } catch {
-        // ignore quota / privacy-mode write failures
-      }
-    }, 300);
-    return () => {
-      if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
-    };
-  }, [markdown]);
 
   // Refs for sync-scroll
   const editorRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLElement>(null);
   const scrollingRef = useRef<"editor" | "preview" | null>(null);
   const scrollTimeoutRef = useRef<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Panel imperative refs
   const sidebarPanelRef = useRef<PanelImperativeHandle>(null);
   const verticalGroupRef = useRef<GroupImperativeHandle>(null);
   const lastTerminalPct = useRef(35);
+
+  const stats = useMemo(() => countStats(markdown), [markdown]);
 
   const updateCursorPos = useCallback((line: number, column: number) => {
     setCursorPos({ line, column });
@@ -100,6 +92,122 @@ function AppInner() {
     }
   }, []);
 
+  // ── Outline navigation ──────────────────────────────────────
+  const scrollToHeading = useCallback(
+    (id: string) => {
+      if (viewMode === "editor") setViewMode("split");
+      window.requestAnimationFrame(() => {
+        const container = previewRef.current;
+        if (!container) return;
+        const target = container.querySelector<HTMLElement>(
+          `#${CSS.escape(id)}`,
+        );
+        target?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    },
+    [viewMode],
+  );
+
+  // ── Search ──────────────────────────────────────────────────
+  const focusSearch = useCallback(() => {
+    const input = document.getElementById(
+      "global-search",
+    ) as HTMLInputElement | null;
+    input?.focus();
+    input?.select();
+  }, []);
+
+  const runSearch = useCallback(
+    (backwards: boolean) => {
+      const query = searchQuery;
+      if (!query) return;
+      const ta = document.getElementById(
+        "code-editor",
+      ) as HTMLTextAreaElement | null;
+      if (!ta) return;
+      if (viewMode === "preview") setViewMode("split");
+
+      const hay = ta.value.toLowerCase();
+      const needle = query.toLowerCase();
+      let from: number;
+      if (backwards) {
+        from = hay.lastIndexOf(needle, Math.max(0, ta.selectionStart - 1));
+        if (from === -1) from = hay.lastIndexOf(needle);
+      } else {
+        from = hay.indexOf(needle, ta.selectionEnd);
+        if (from === -1) from = hay.indexOf(needle);
+      }
+      if (from === -1) return;
+
+      ta.focus();
+      ta.setSelectionRange(from, from + query.length);
+
+      const container = editorRef.current;
+      if (container) {
+        const lineCount = ta.value.split("\n").length || 1;
+        const lineHeight = ta.scrollHeight / lineCount;
+        const lineNumber = ta.value.slice(0, from).split("\n").length;
+        container.scrollTop = Math.max(
+          0,
+          (lineNumber - 1) * lineHeight - container.clientHeight / 2,
+        );
+      }
+    },
+    [searchQuery, viewMode],
+  );
+
+  // ── Import / Export ─────────────────────────────────────────
+  const exportMarkdown = useCallback(() => {
+    const blob = new Blob([markdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = activeDoc?.name ?? "document.md";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [markdown, activeDoc]);
+
+  const exportHtml = useCallback(() => {
+    const container = document.querySelector(".preview-content");
+    const body = container?.innerHTML ?? markdown;
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${activeDoc?.name ?? "document"}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<style>body{max-width:800px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.6;}pre{background:#f4f4f4;padding:1rem;overflow:auto;border-radius:6px;}code{font-family:monospace;}table{border-collapse:collapse;}th,td{border:1px solid #ddd;padding:.5rem;}</style>
+</head>
+<body>${body}</body>
+</html>`;
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(activeDoc?.name ?? "document").replace(/\.md$/, "")}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [markdown, activeDoc]);
+
+  const triggerImport = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleImportFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        createDocument(file.name, String(reader.result ?? ""));
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    },
+    [createDocument],
+  );
+
   // ── Sidebar ─────────────────────────────────────────────────
   const toggleSidebar = useCallback(() => {
     const panel = sidebarPanelRef.current;
@@ -116,12 +224,10 @@ function AppInner() {
     const currentTerminalPct = layout["terminal"] ?? 0;
 
     if (currentTerminalPct <= 1) {
-      // Open terminal at remembered size
       const target = lastTerminalPct.current;
       group.setLayout({ workspace: 100 - target, terminal: target });
       setTerminalOpen(true);
     } else {
-      // Close terminal — save current size first
       lastTerminalPct.current = currentTerminalPct;
       group.setLayout({ workspace: 100, terminal: 0 });
       setTerminalOpen(false);
@@ -138,21 +244,48 @@ function AppInner() {
     setTerminalOpen(false);
   }, []);
 
-  // Ctrl+` shortcut
+  // ── Keyboard shortcuts ──────────────────────────────────────
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === "`") {
         e.preventDefault();
         toggleTerminal();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        focusSearch();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [toggleTerminal]);
+  }, [toggleTerminal, focusSearch]);
+
+  const showEditor = viewMode !== "preview";
+  const showPreview = viewMode !== "editor";
 
   return (
     <div className="flex flex-col h-screen">
-      <Topbar terminalOpen={terminalOpen} onToggleTerminal={toggleTerminal} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".md,.markdown,.txt,text/markdown,text/plain"
+        className="hidden"
+        onChange={handleImportFile}
+      />
+
+      <Topbar
+        terminalOpen={terminalOpen}
+        onToggleTerminal={toggleTerminal}
+        viewMode={viewMode}
+        onSetViewMode={setViewMode}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSearchSubmit={runSearch}
+        onNewDocument={() => createDocument()}
+        onImport={triggerImport}
+        onExportMarkdown={exportMarkdown}
+        onExportHtml={exportHtml}
+        onPrint={() => window.print()}
+      />
 
       {/* Vertical split: main workspace on top, terminal on bottom */}
       <Group
@@ -172,30 +305,42 @@ function AppInner() {
                 minSize="160px"
                 maxSize="35%"
               >
-                <Sidebar onFolderClick={toggleSidebar} />
-              </Panel>
-
-              <Separator className="w-1 bg-[#1a1a1a] hover:bg-(--color-neon) active:bg-(--color-neon) transition-colors cursor-col-resize shrink-0" />
-
-              <Panel defaultSize="41%" minSize="15%">
-                <Editor
-                  ref={editorRef}
-                  markdown={markdown}
-                  setMarkdown={setMarkdown}
-                  onCursorChange={updateCursorPos}
-                  onScroll={handleEditorScroll}
+                <Sidebar
+                  onFolderClick={toggleSidebar}
+                  onOutlineClick={scrollToHeading}
+                  onFocusSearch={focusSearch}
+                  onImport={triggerImport}
                 />
               </Panel>
 
               <Separator className="w-1 bg-[#1a1a1a] hover:bg-(--color-neon) active:bg-(--color-neon) transition-colors cursor-col-resize shrink-0" />
 
-              <Panel defaultSize="41%" minSize="15%">
-                <Preview
-                  ref={previewRef}
-                  markdown={markdown}
-                  onScroll={handlePreviewScroll}
-                />
-              </Panel>
+              {showEditor && (
+                <Panel id="editor" defaultSize="41%" minSize="15%">
+                  <Editor
+                    ref={editorRef}
+                    markdown={markdown}
+                    setMarkdown={setMarkdown}
+                    onCursorChange={updateCursorPos}
+                    onScroll={handleEditorScroll}
+                    fileName={activeDoc?.name ?? "index.md"}
+                  />
+                </Panel>
+              )}
+
+              {showEditor && showPreview && (
+                <Separator className="w-1 bg-[#1a1a1a] hover:bg-(--color-neon) active:bg-(--color-neon) transition-colors cursor-col-resize shrink-0" />
+              )}
+
+              {showPreview && (
+                <Panel id="preview" defaultSize="41%" minSize="15%">
+                  <Preview
+                    ref={previewRef}
+                    markdown={markdown}
+                    onScroll={handlePreviewScroll}
+                  />
+                </Panel>
+              )}
             </Group>
           </main>
         </Panel>
@@ -242,8 +387,17 @@ function AppInner() {
         <div className="flex items-center gap-4">
           <span className="font-bold">MAIN*</span>
           <span>UTF-8</span>
+          <span>
+            {lastSavedAt
+              ? `SAVED ${new Date(lastSavedAt).toLocaleTimeString()}`
+              : "…"}
+          </span>
         </div>
         <div className="flex items-center gap-4">
+          <span>
+            {stats.words} words · {stats.chars} chars · {stats.readingMinutes}{" "}
+            min read
+          </span>
           <span>{`<> MARKDOWN`}</span>
           <span>
             LN {cursorPos.line}, COL {cursorPos.column}
@@ -257,7 +411,9 @@ function AppInner() {
 function App() {
   return (
     <ThemeProvider>
-      <AppInner />
+      <DocumentsProvider>
+        <AppInner />
+      </DocumentsProvider>
     </ThemeProvider>
   );
 }

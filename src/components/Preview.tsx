@@ -1,15 +1,52 @@
-import { forwardRef, useImperativeHandle, useRef } from "react";
-import ReactMarkdown from "react-markdown";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  type ReactElement,
+} from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeHighlight from "rehype-highlight";
 import "katex/dist/katex.min.css";
-import { FileText, Share2, Download, MoreVertical } from "lucide-react";
+import "highlight.js/styles/github-dark.css";
+import { FileText, Share2, Download, Printer } from "lucide-react";
+import CodeBlock from "./CodeBlock";
+import Mermaid from "./Mermaid";
 
 interface PreviewProps {
   markdown: string;
   onScroll?: (e: React.UIEvent<HTMLElement>) => void;
 }
+
+const markdownComponents: Components = {
+  pre({ children }) {
+    const codeEl = children as ReactElement<{
+      className?: string;
+      children?: React.ReactNode;
+    }>;
+    const className = codeEl?.props?.className ?? "";
+    const match = /language-(\w+)/.exec(className);
+    const language = match?.[1];
+    const code = String(codeEl?.props?.children ?? "").replace(/\n$/, "");
+
+    if (language === "mermaid") return <Mermaid chart={code} />;
+    return <CodeBlock code={code} language={language} />;
+  },
+  code({ children, ...props }) {
+    return (
+      <code
+        {...props}
+        className="px-1.5 py-0.5 rounded bg-neon-bg/40 text-neon font-mono text-[0.85em]"
+      >
+        {children}
+      </code>
+    );
+  },
+};
 
 const Preview = forwardRef<HTMLElement, PreviewProps>(({ markdown, onScroll }, ref) => {
   const containerRef = useRef<HTMLElement>(null);
@@ -66,7 +103,16 @@ const Preview = forwardRef<HTMLElement, PreviewProps>(({ markdown, onScroll }, r
       >
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeKatex]}
+          rehypePlugins={[
+            rehypeSlug,
+            [
+              rehypeAutolinkHeadings,
+              { behavior: "wrap", properties: { className: ["heading-anchor"] } },
+            ],
+            rehypeHighlight,
+            rehypeKatex,
+          ]}
+          components={markdownComponents}
         >
           {markdown}
         </ReactMarkdown>
@@ -99,10 +145,10 @@ const Preview = forwardRef<HTMLElement, PreviewProps>(({ markdown, onScroll }, r
           type="button"
           onClick={() => window.print()}
           aria-label="Print preview"
-          title="Print"
+          title="Print / Save as PDF"
           className="text-dimmed hover:text-white cursor-pointer transition-colors"
         >
-          <MoreVertical size={20} />
+          <Printer size={20} />
         </button>
       </div>
     </section>

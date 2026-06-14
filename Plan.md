@@ -66,10 +66,6 @@ Mettre a jour le README (structure reelle, features reellement presentes).
 
 Phase 4 - Combler les fonctionnalites factices
 
-
-
-
-
 Persistance du document: sauvegarder markdown dans localStorage (debounce), restaurer au chargement.
 
 

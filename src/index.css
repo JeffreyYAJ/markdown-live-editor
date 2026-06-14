@@ -232,3 +232,43 @@ input[aria-label="Terminal input"]::placeholder {
   color: var(--color-inactive);
   font-style: italic;
 }
+
+/* ========= PRINT / EXPORT PDF ========= */
+@media print {
+  body {
+    overflow: visible;
+    height: auto;
+    background: #ffffff;
+    color: #111111;
+  }
+
+  /* Hide everything except the rendered preview content */
+  body * {
+    visibility: hidden;
+  }
+
+  .preview-content,
+  .preview-content * {
+    visibility: visible;
+  }
+
+  .preview-content {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 1rem;
+    color: #111111 !important;
+  }
+
+  /* Hide the floating action toolbar inside the preview */
+  .preview-content ~ * {
+    display: none !important;
+  }
+
+  .code-block button,
+  .code-block .flex {
+    display: none !important;
+  }
+}
