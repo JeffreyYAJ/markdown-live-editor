@@ -197,7 +197,7 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
         default:
           pushLines(
             mkLine("error", `  command not found: '${cmd}'`),
-            mkLine("info", "  Type \`help\` to see available commands."),
+            mkLine("info", "  Type `help` to see available commands."),
           );
       }
     },

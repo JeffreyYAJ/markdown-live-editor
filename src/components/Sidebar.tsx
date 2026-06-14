@@ -27,12 +27,15 @@ export default function Sidebar({ onFolderClick }: SidebarProps) {
             TERMINAL
           </div>
         </div>
-        <div
+        <button
+          type="button"
           className="flex flex-col items-center gap-1 w-full cursor-pointer text-inactive hover:text-dimmed transition-colors"
           onClick={onFolderClick}
+          aria-label="Toggle explorer"
+          title="Toggle explorer"
         >
           <Folder size={22} />
-        </div>
+        </button>
         <div className="flex flex-col items-center gap-1 w-full cursor-pointer text-inactive hover:text-dimmed transition-colors">
           <Search size={22} />
         </div>

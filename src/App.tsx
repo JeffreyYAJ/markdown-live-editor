@@ -104,7 +104,8 @@ function AppInner() {
   const toggleSidebar = useCallback(() => {
     const panel = sidebarPanelRef.current;
     if (!panel) return;
-    panel.isCollapsed() ? panel.expand() : panel.collapse();
+    if (panel.isCollapsed()) panel.expand();
+    else panel.collapse();
   }, []);
 
   // ── Terminal (uses Group-level setLayout for reliability) ────

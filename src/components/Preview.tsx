@@ -16,6 +16,24 @@ const Preview = forwardRef<HTMLElement, PreviewProps>(({ markdown, onScroll }, r
 
   useImperativeHandle(ref, () => containerRef.current as HTMLElement);
 
+  const handleDownload = () => {
+    const blob = new Blob([markdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "document.md";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(markdown);
+    } catch {
+      // clipboard may be unavailable (insecure context / permissions)
+    }
+  };
+
   return (
     <section
       ref={containerRef}
@@ -58,19 +76,34 @@ const Preview = forwardRef<HTMLElement, PreviewProps>(({ markdown, onScroll }, r
         className="absolute top-4 right-8 p-2.5 rounded shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex flex-col gap-4 z-20"
         style={{ backgroundColor: "var(--color-sidebar)" }}
       >
-        <FileText size={20} className="text-main cursor-pointer" />
-        <Share2
-          size={20}
+        <FileText size={20} className="text-main" aria-hidden="true" />
+        <button
+          type="button"
+          onClick={handleShare}
+          aria-label="Copy markdown to clipboard"
+          title="Copy to clipboard"
           className="text-dimmed hover:text-white cursor-pointer transition-colors"
-        />
-        <Download
-          size={20}
+        >
+          <Share2 size={20} />
+        </button>
+        <button
+          type="button"
+          onClick={handleDownload}
+          aria-label="Download as Markdown"
+          title="Download .md"
           className="text-dimmed hover:text-white cursor-pointer transition-colors"
-        />
-        <MoreVertical
-          size={20}
+        >
+          <Download size={20} />
+        </button>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          aria-label="Print preview"
+          title="Print"
           className="text-dimmed hover:text-white cursor-pointer transition-colors"
-        />
+        >
+          <MoreVertical size={20} />
+        </button>
       </div>
     </section>
   );

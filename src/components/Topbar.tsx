@@ -27,7 +27,14 @@ export default function Topbar({ terminalOpen = false, onToggleTerminal }: Topba
         <button className="px-3 py-1 rounded-[2px] font-semibold uppercase tracking-wider bg-transparent text-neon border border-neon-dim hover:bg-neon-dim transition-colors">PREVIEW</button>
         <div className="flex text-dimmed gap-2.5 ml-2 items-center">
            <PanelRight size={18} className="cursor-pointer hover:text-main transition-colors"/>
-           <Printer size={18} className="cursor-pointer hover:text-main transition-colors"/>
+           <button
+             onClick={() => window.print()}
+             title="Print"
+             aria-label="Print document"
+             className="cursor-pointer hover:text-main transition-colors"
+           >
+             <Printer size={18} />
+           </button>
            <LayoutGrid size={18} className="cursor-pointer hover:text-main transition-colors"/>
            {/* Terminal toggle */}
            <button
