@@ -12,10 +12,41 @@ A real-time markdown editor with live preview, built with React, TypeScript, and
 - **Syntax Highlighting**: Markdown editing powered by `react-simple-code-editor` + PrismJS
 - **Themes**: Switch between `neon`, `obsidian`, and `white` (persisted in `localStorage`)
 - **Built-in Terminal**: Toggle with `Ctrl+\``; supports `help`, `stats`, `theme`, `export md|html`, and more
-- **Auto-save**: Document content is persisted locally and restored on reload
+- **Auto-save**: Documents are saved to disk in your local workspace folder
+- **Local file server**: A Node.js API reads/writes markdown files on your machine (no cloud VPS needed)
 - **Resizable Panels**: Adjust the sidebar, editor, preview, and terminal layout
 
-##  Getting Started
+## Local file workspace
+
+By default, all markdown files live in the `workspace/` folder inside the project. The app talks to a small local API server that reads and writes files on disk — your machine acts as the server.
+
+```bash
+# Copy env template (optional — customize workspace path)
+cp .env.example .env
+
+# Start API server + Vite dev client together
+npm run dev
+```
+
+- **Frontend**: http://localhost:5173 (proxies `/api` to the file server)
+- **File server**: http://localhost:3001
+- **Default workspace**: `./workspace` (override with `WORKSPACE_ROOT` in `.env`)
+
+Example `.env`:
+
+```env
+WORKSPACE_ROOT=/home/yaj/Documents/architect-workspace
+PORT=3001
+```
+
+Production-like local mode (single port):
+
+```bash
+npm run build
+npm run start   # serves dist/ + API on http://localhost:3001
+```
+
+You can also edit files directly in `workspace/` with any editor — reload the page to pick up changes made outside the app.
 
 ### Prerequisites
 
@@ -25,14 +56,10 @@ A real-time markdown editor with live preview, built with React, TypeScript, and
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/kyler004/markdown-live-editor.git
 cd markdown-live-editor
-
-# Install dependencies
 npm install
-
-# Start development server
+cp .env.example .env   # optional — set WORKSPACE_ROOT
 npm run dev
 ```
 
@@ -49,7 +76,14 @@ The app will be available at `http://localhost:5173`.
 ##  Project Structure
 
 ```
+server/
+├── index.ts            # Express API (read/write workspace files)
+└── fs-utils.ts         # Safe path handling + history snapshots
+workspace/              # Your markdown files on disk (default server root)
 src/
+├── api/
+│   └── files.ts        # Frontend client for /api/*
+```
 ├── components/
 │   ├── Topbar.tsx        # Top menu bar + terminal toggle
 │   ├── Sidebar.tsx       # Activity bar, explorer, outline

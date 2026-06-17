@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 
 export interface MarkdownDocument {
+  /** Relative path inside the workspace (e.g. `notes/readme.md`). */
   id: string;
   name: string;
   content: string;
@@ -17,13 +18,19 @@ export interface DocumentsContextValue {
   activeId: string;
   activeDoc: MarkdownDocument | undefined;
   lastSavedAt: number | null;
-  createDocument: (name?: string, content?: string) => string;
-  deleteDocument: (id: string) => void;
-  renameDocument: (id: string, name: string) => void;
-  selectDocument: (id: string) => void;
+  isLoading: boolean;
+  fsConnected: boolean;
+  workspaceRoot: string | null;
+  error: string | null;
+  createDocument: (name?: string, content?: string) => Promise<string>;
+  deleteDocument: (id: string) => Promise<void>;
+  renameDocument: (id: string, name: string) => Promise<void>;
+  selectDocument: (id: string) => Promise<void>;
   updateActiveContent: (content: string) => void;
   getHistory: (id: string) => DocumentSnapshot[];
-  restoreSnapshot: (id: string, ts: number) => void;
+  refreshHistory: (id: string) => Promise<DocumentSnapshot[]>;
+  restoreSnapshot: (id: string, ts: number) => Promise<void>;
+  refreshDocuments: () => Promise<void>;
 }
 
 export const DocumentsContext = createContext<DocumentsContextValue | null>(

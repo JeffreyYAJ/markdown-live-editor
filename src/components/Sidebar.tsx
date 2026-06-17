@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import {
   Terminal,
   Folder,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import SettingsMenu from "./SettingsMenu";
 import { useDocuments } from "../context/DocumentsContext";
+import type { DocumentSnapshot } from "../context/DocumentsContext";
 import { extractOutline } from "../utils/markdown";
 
 interface SidebarProps {
@@ -42,21 +43,26 @@ export default function Sidebar({
     renameDocument,
     selectDocument,
     getHistory,
+    refreshHistory,
     restoreSnapshot,
     lastSavedAt,
+    isLoading,
   } = useDocuments();
+
+  const [historySnaps, setHistorySnaps] = useState<DocumentSnapshot[]>([]);
 
   const outline = useMemo(
     () => extractOutline(activeDoc?.content ?? ""),
     [activeDoc?.content],
   );
 
-  const history = useMemo(() => {
-    if (!activeId) return [];
-    return getHistory(activeId);
-    // Refresh when autosave completes
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- lastSavedAt triggers re-read
-  }, [activeId, getHistory, lastSavedAt]);
+  useEffect(() => {
+    if (historyOpen && activeId) {
+      void refreshHistory(activeId).then(setHistorySnaps);
+    }
+  }, [historyOpen, activeId, refreshHistory, lastSavedAt]);
+
+  const history = historyOpen ? historySnaps : getHistory(activeId);
 
   const startRename = (id: string, name: string) => {
     setRenamingId(id);
@@ -65,7 +71,7 @@ export default function Sidebar({
 
   const commitRename = () => {
     if (renamingId && renameValue.trim()) {
-      renameDocument(renamingId, renameValue.trim());
+      void renameDocument(renamingId, renameValue.trim());
     }
     setRenamingId(null);
     setRenameValue("");
@@ -159,7 +165,7 @@ export default function Sidebar({
             </div>
             <button
               type="button"
-              onClick={() => createDocument()}
+              onClick={() => void createDocument()}
               className="text-dimmed hover:text-neon transition-colors"
               aria-label="New document"
               title="New document"
@@ -167,6 +173,9 @@ export default function Sidebar({
               <Plus size={14} />
             </button>
           </div>
+          {isLoading ? (
+            <p className="text-xs text-inactive italic">Loading workspace…</p>
+          ) : (
           <ul className="text-xs space-y-2">
             {documents.map((doc) => (
               <li
@@ -176,8 +185,9 @@ export default function Sidebar({
                     ? "text-neon font-medium"
                     : "text-inactive hover:text-dimmed"
                 }`}
-                onClick={() => selectDocument(doc.id)}
+                onClick={() => void selectDocument(doc.id)}
                 onDoubleClick={() => startRename(doc.id, doc.name)}
+                title={doc.id}
               >
                 <FileText size={12} className="shrink-0" />
                 {renamingId === doc.id ? (
@@ -201,7 +211,7 @@ export default function Sidebar({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      deleteDocument(doc.id);
+                      void deleteDocument(doc.id);
                     }}
                     className="opacity-0 group-hover:opacity-100 text-dimmed hover:text-red-400 shrink-0"
                     aria-label={`Delete ${doc.name}`}
@@ -212,6 +222,7 @@ export default function Sidebar({
               </li>
             ))}
           </ul>
+          )}
         </div>
 
         <div className="px-4 mb-8">
@@ -256,7 +267,7 @@ export default function Sidebar({
                   <li key={snap.ts}>
                     <button
                       type="button"
-                      onClick={() => restoreSnapshot(activeId, snap.ts)}
+                      onClick={() => void restoreSnapshot(activeId, snap.ts)}
                       className="w-full text-left hover:text-neon transition-colors truncate"
                     >
                       {new Date(snap.ts).toLocaleString()}

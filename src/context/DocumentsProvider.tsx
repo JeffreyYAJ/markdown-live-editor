@@ -6,204 +6,289 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { initialMarkdown } from "../data/initialMarkdown";
+import {
+  checkHealth,
+  createFile,
+  deleteFile,
+  fetchFile,
+  fetchHistory,
+  fetchWorkspace,
+  renameFile,
+  restoreHistory,
+  saveFile,
+  FilesApiError,
+} from "../api/files";
 import {
   DocumentsContext,
   type DocumentSnapshot,
   type MarkdownDocument,
 } from "./DocumentsContext";
 
-const DOCS_STORAGE_KEY = "architect-docs-v1";
-const HISTORY_STORAGE_KEY = "architect-history-v1";
-const LEGACY_DOC_KEY = "architect-document";
+const ACTIVE_FILE_KEY = "architect-active-file";
+const SAVE_DEBOUNCE_MS = 400;
 
-const MAX_SNAPSHOTS = 25;
-const SNAPSHOT_INTERVAL_MS = 15000;
-
-interface PersistedState {
-  documents: MarkdownDocument[];
-  activeId: string;
+function basename(path: string): string {
+  const parts = path.split("/");
+  return parts[parts.length - 1] || path;
 }
 
-function makeId(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `doc-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+function resolveRenamePath(currentPath: string, newName: string): string {
+  const trimmed = newName.trim().replace(/\\/g, "/");
+  if (trimmed.includes("/")) return trimmed.replace(/^\/+/, "");
+  const dir = currentPath.includes("/")
+    ? currentPath.slice(0, currentPath.lastIndexOf("/") + 1)
+    : "";
+  return `${dir}${trimmed}`;
 }
 
-function loadInitialState(): PersistedState {
-  try {
-    const raw = localStorage.getItem(DOCS_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as PersistedState;
-      if (parsed.documents?.length) return parsed;
-    }
-  } catch {
-    // fall through to migration / defaults
-  }
-
-  // Migrate the legacy single-document key, if present.
-  let content = initialMarkdown;
-  try {
-    const legacy = localStorage.getItem(LEGACY_DOC_KEY);
-    if (legacy != null) content = legacy;
-  } catch {
-    // ignore
-  }
-
-  const doc: MarkdownDocument = {
-    id: makeId(),
-    name: "index.md",
+function entryToDoc(
+  path: string,
+  updatedAt: number,
+  content = "",
+): MarkdownDocument {
+  return {
+    id: path,
+    name: basename(path),
     content,
-    updatedAt: Date.now(),
+    updatedAt,
   };
-  return { documents: [doc], activeId: doc.id };
-}
-
-function loadHistory(): Record<string, DocumentSnapshot[]> {
-  try {
-    const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as Record<string, DocumentSnapshot[]>;
-  } catch {
-    // ignore
-  }
-  return {};
 }
 
 export function DocumentsProvider({ children }: { children: ReactNode }) {
-  const [{ documents, activeId }, setState] = useState<PersistedState>(
-    loadInitialState,
-  );
+  const [documents, setDocuments] = useState<MarkdownDocument[]>([]);
+  const [activeId, setActiveId] = useState("");
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fsConnected, setFsConnected] = useState(false);
+  const [workspaceRoot, setWorkspaceRoot] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const historyRef = useRef<Record<string, DocumentSnapshot[]>>(loadHistory());
+  const contentCache = useRef<Map<string, string>>(new Map());
+  const historyCache = useRef<Map<string, DocumentSnapshot[]>>(new Map());
   const saveTimeoutRef = useRef<number | null>(null);
+  const pendingSaveRef = useRef<{ path: string; content: string } | null>(
+    null,
+  );
 
-  // Debounced persistence of documents + history snapshots.
-  useEffect(() => {
-    if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = window.setTimeout(() => {
-      try {
-        localStorage.setItem(
-          DOCS_STORAGE_KEY,
-          JSON.stringify({ documents, activeId }),
-        );
-
-        const active = documents.find((d) => d.id === activeId);
-        if (active) {
-          const snaps = historyRef.current[active.id] ?? [];
-          const last = snaps[snaps.length - 1];
-          const changed = !last || last.content !== active.content;
-          const elapsed = !last || Date.now() - last.ts > SNAPSHOT_INTERVAL_MS;
-          if (changed && elapsed) {
-            const next = [
-              ...snaps,
-              { ts: Date.now(), content: active.content },
-            ].slice(-MAX_SNAPSHOTS);
-            historyRef.current = {
-              ...historyRef.current,
-              [active.id]: next,
-            };
-            localStorage.setItem(
-              HISTORY_STORAGE_KEY,
-              JSON.stringify(historyRef.current),
-            );
-          }
-        }
-        setLastSavedAt(Date.now());
-      } catch {
-        // ignore quota / privacy-mode failures
-      }
-    }, 400);
-
-    return () => {
-      if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
-    };
-  }, [documents, activeId]);
-
-  const createDocument = useCallback((name?: string, content = "") => {
-    const id = makeId();
-    setState((prev) => {
-      const base = name?.trim() || `untitled-${prev.documents.length + 1}.md`;
-      const finalName = /\.[a-z0-9]+$/i.test(base) ? base : `${base}.md`;
-      const doc: MarkdownDocument = {
-        id,
-        name: finalName,
-        content,
-        updatedAt: Date.now(),
-      };
-      return { documents: [...prev.documents, doc], activeId: id };
-    });
-    return id;
+  const flushSave = useCallback(async () => {
+    const pending = pendingSaveRef.current;
+    if (!pending) return;
+    pendingSaveRef.current = null;
+    try {
+      const { updatedAt } = await saveFile(pending.path, pending.content);
+      setLastSavedAt(Date.now());
+      setDocuments((prev) =>
+        prev.map((d) =>
+          d.id === pending.path ? { ...d, updatedAt, content: pending.content } : d,
+        ),
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Save failed");
+    }
   }, []);
 
-  const deleteDocument = useCallback((id: string) => {
-    setState((prev) => {
-      if (prev.documents.length <= 1) return prev; // keep at least one
-      const remaining = prev.documents.filter((d) => d.id !== id);
-      const activeId =
-        prev.activeId === id ? remaining[0].id : prev.activeId;
-      return { documents: remaining, activeId };
-    });
-  }, []);
-
-  const renameDocument = useCallback((id: string, name: string) => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    setState((prev) => ({
-      ...prev,
-      documents: prev.documents.map((d) =>
-        d.id === id ? { ...d, name: trimmed, updatedAt: Date.now() } : d,
+  const loadFileContent = useCallback(async (path: string) => {
+    const cached = contentCache.current.get(path);
+    if (cached != null) {
+      setDocuments((prev) =>
+        prev.map((d) => (d.id === path ? { ...d, content: cached } : d)),
+      );
+      return;
+    }
+    const file = await fetchFile(path);
+    contentCache.current.set(path, file.content);
+    setDocuments((prev) =>
+      prev.map((d) =>
+        d.id === path
+          ? { ...d, content: file.content, updatedAt: file.updatedAt }
+          : d,
       ),
-    }));
-  }, []);
-
-  const selectDocument = useCallback((id: string) => {
-    setState((prev) =>
-      prev.activeId === id ? prev : { ...prev, activeId: id },
     );
   }, []);
 
-  const updateActiveContent = useCallback((content: string) => {
-    setState((prev) => ({
-      ...prev,
-      documents: prev.documents.map((d) =>
-        d.id === prev.activeId
-          ? { ...d, content, updatedAt: Date.now() }
-          : d,
-      ),
-    }));
-  }, []);
+  const refreshDocuments = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await checkHealth();
+      const ws = await fetchWorkspace();
+      setFsConnected(true);
+      setWorkspaceRoot(ws.root);
+
+      const docs = ws.files.map((f) =>
+        entryToDoc(
+          f.path,
+          f.updatedAt,
+          contentCache.current.get(f.path) ?? "",
+        ),
+      );
+
+      if (docs.length === 0) {
+        const created = await createFile();
+        docs.push(entryToDoc(created.path, created.updatedAt, ""));
+      }
+
+      setDocuments(docs);
+
+      const stored = localStorage.getItem(ACTIVE_FILE_KEY);
+      const nextActive =
+        stored && docs.some((d) => d.id === stored) ? stored : docs[0].id;
+      setActiveId(nextActive);
+      localStorage.setItem(ACTIVE_FILE_KEY, nextActive);
+      await loadFileContent(nextActive);
+    } catch (err) {
+      setFsConnected(false);
+      setError(
+        err instanceof FilesApiError
+          ? err.message
+          : "Cannot reach local file server. Run: npm run dev",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadFileContent]);
+
+  useEffect(() => {
+    void refreshDocuments();
+  }, [refreshDocuments]);
+
+  const createDocument = useCallback(
+    async (name?: string, content = "") => {
+      let path = name?.trim();
+      if (path && !/\.(md|markdown|txt)$/i.test(path)) path = `${path}.md`;
+
+      const created = await createFile(path || undefined, content);
+      contentCache.current.set(created.path, content);
+      const doc = entryToDoc(created.path, created.updatedAt, content);
+      setDocuments((prev) => [...prev, doc]);
+      setActiveId(created.path);
+      localStorage.setItem(ACTIVE_FILE_KEY, created.path);
+      return created.path;
+    },
+    [],
+  );
+
+  const deleteDocument = useCallback(
+    async (id: string) => {
+      if (documents.length <= 1) return;
+      await deleteFile(id);
+      contentCache.current.delete(id);
+      historyCache.current.delete(id);
+      const remaining = documents.filter((d) => d.id !== id);
+      setDocuments(remaining);
+      if (activeId === id) {
+        const next = remaining[0].id;
+        setActiveId(next);
+        localStorage.setItem(ACTIVE_FILE_KEY, next);
+        await loadFileContent(next);
+      }
+    },
+    [documents, activeId, loadFileContent],
+  );
+
+  const renameDocument = useCallback(
+    async (id: string, name: string) => {
+      const newPath = resolveRenamePath(id, name);
+      if (newPath === id) return;
+      const result = await renameFile(id, newPath);
+      const content = contentCache.current.get(id) ?? "";
+      contentCache.current.delete(id);
+      contentCache.current.set(result.path, content);
+      historyCache.current.delete(id);
+
+      setDocuments((prev) =>
+        prev.map((d) =>
+          d.id === id
+            ? {
+                ...d,
+                id: result.path,
+                name: basename(result.path),
+                updatedAt: result.updatedAt,
+              }
+            : d,
+        ),
+      );
+      if (activeId === id) {
+        setActiveId(result.path);
+        localStorage.setItem(ACTIVE_FILE_KEY, result.path);
+      }
+    },
+    [activeId],
+  );
+
+  const selectDocument = useCallback(
+    async (id: string) => {
+      if (saveTimeoutRef.current) {
+        window.clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+      await flushSave();
+      setActiveId(id);
+      localStorage.setItem(ACTIVE_FILE_KEY, id);
+      await loadFileContent(id);
+    },
+    [flushSave, loadFileContent],
+  );
+
+  const updateActiveContent = useCallback(
+    (content: string) => {
+      if (!activeId) return;
+      contentCache.current.set(activeId, content);
+      setDocuments((prev) =>
+        prev.map((d) =>
+          d.id === activeId ? { ...d, content, updatedAt: Date.now() } : d,
+        ),
+      );
+
+      pendingSaveRef.current = { path: activeId, content };
+      if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = window.setTimeout(() => {
+        void flushSave();
+      }, SAVE_DEBOUNCE_MS);
+    },
+    [activeId, flushSave],
+  );
 
   const getHistory = useCallback((id: string) => {
-    try {
-      const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
-      if (raw) {
-        historyRef.current = JSON.parse(raw) as Record<
-          string,
-          DocumentSnapshot[]
-        >;
-      }
-    } catch {
-      // ignore
-    }
-    return historyRef.current[id] ?? [];
+    return historyCache.current.get(id) ?? [];
   }, []);
 
-  const restoreSnapshot = useCallback((id: string, ts: number) => {
-    const snaps = historyRef.current[id] ?? [];
-    const snap = snaps.find((s) => s.ts === ts);
-    if (!snap) return;
-    setState((prev) => ({
-      ...prev,
-      documents: prev.documents.map((d) =>
-        d.id === id
-          ? { ...d, content: snap.content, updatedAt: Date.now() }
-          : d,
-      ),
-    }));
+  const loadHistory = useCallback(async (id: string) => {
+    try {
+      const snaps = await fetchHistory(id);
+      historyCache.current.set(id, snaps);
+      return snaps;
+    } catch {
+      return [];
+    }
   }, []);
+
+  const restoreSnapshot = useCallback(
+    async (id: string, ts: number) => {
+      const restored = await restoreHistory(id, ts);
+      contentCache.current.set(id, restored.content);
+      setDocuments((prev) =>
+        prev.map((d) =>
+          d.id === id
+            ? {
+                ...d,
+                content: restored.content,
+                updatedAt: restored.updatedAt,
+              }
+            : d,
+        ),
+      );
+      setLastSavedAt(Date.now());
+    },
+    [],
+  );
+
+  // Refresh history cache when file is saved
+  useEffect(() => {
+    if (activeId && lastSavedAt) {
+      void loadHistory(activeId);
+    }
+  }, [activeId, lastSavedAt, loadHistory]);
 
   const activeDoc = useMemo(
     () => documents.find((d) => d.id === activeId),
@@ -216,26 +301,38 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
       activeId,
       activeDoc,
       lastSavedAt,
+      isLoading,
+      fsConnected,
+      workspaceRoot,
+      error,
       createDocument,
       deleteDocument,
       renameDocument,
       selectDocument,
       updateActiveContent,
       getHistory,
+      refreshHistory: loadHistory,
       restoreSnapshot,
+      refreshDocuments,
     }),
     [
       documents,
       activeId,
       activeDoc,
       lastSavedAt,
+      isLoading,
+      fsConnected,
+      workspaceRoot,
+      error,
       createDocument,
       deleteDocument,
       renameDocument,
       selectDocument,
       updateActiveContent,
       getHistory,
+      loadHistory,
       restoreSnapshot,
+      refreshDocuments,
     ],
   );
 

@@ -23,6 +23,10 @@ function AppInner() {
     updateActiveContent,
     createDocument,
     lastSavedAt,
+    fsConnected,
+    workspaceRoot,
+    error: fsError,
+    isLoading,
   } = useDocuments();
   const markdown = activeDoc?.content ?? "";
   const setMarkdown = updateActiveContent;
@@ -200,7 +204,7 @@ function AppInner() {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
-        createDocument(file.name, String(reader.result ?? ""));
+        void createDocument(file.name, String(reader.result ?? ""));
       };
       reader.readAsText(file);
       e.target.value = "";
@@ -280,7 +284,7 @@ function AppInner() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onSearchSubmit={runSearch}
-        onNewDocument={() => createDocument()}
+        onNewDocument={() => void createDocument()}
         onImport={triggerImport}
         onExportMarkdown={exportMarkdown}
         onExportHtml={exportHtml}
@@ -323,7 +327,7 @@ function AppInner() {
                     setMarkdown={setMarkdown}
                     onCursorChange={updateCursorPos}
                     onScroll={handleEditorScroll}
-                    fileName={activeDoc?.name ?? "index.md"}
+                    fileName={activeDoc?.id ?? "index.md"}
                   />
                 </Panel>
               )}
@@ -384,14 +388,30 @@ function AppInner() {
           color: "var(--color-on-accent)",
         }}
       >
-        <div className="flex items-center gap-4">
-          <span className="font-bold">MAIN*</span>
-          <span>UTF-8</span>
-          <span>
+        <div className="flex items-center gap-4 min-w-0">
+          <span className="font-bold shrink-0">MAIN*</span>
+          <span className="shrink-0">UTF-8</span>
+          <span className="shrink-0">
+            {fsConnected ? "DISK" : "OFFLINE"}
             {lastSavedAt
-              ? `SAVED ${new Date(lastSavedAt).toLocaleTimeString()}`
-              : "…"}
+              ? ` · SAVED ${new Date(lastSavedAt).toLocaleTimeString()}`
+              : isLoading
+                ? " · …"
+                : ""}
           </span>
+          {workspaceRoot && (
+            <span
+              className="truncate opacity-80 max-w-[280px]"
+              title={workspaceRoot}
+            >
+              {workspaceRoot}
+            </span>
+          )}
+          {fsError && (
+            <span className="truncate text-red-900 max-w-[200px]" title={fsError}>
+              {fsError}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-4">
           <span>

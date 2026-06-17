@@ -40,8 +40,9 @@ dist-ssr
 coverage
 .nyc_output
 
-# Build
-build
+# Local workspace metadata (history snapshots)
+workspace/.architect/
+
 .next
 .cache
 .parcel-cache
