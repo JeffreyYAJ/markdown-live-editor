@@ -11,6 +11,18 @@ export interface FileEntry {
   updatedAt: number;
 }
 
+export function resolveDataRoot(): string {
+  const configured = process.env.DATA_ROOT?.trim();
+  if (configured) return path.resolve(configured);
+  return path.resolve(process.cwd(), "data");
+}
+
+/** Per-user private workspace — isolated from other users. */
+export function resolveUserWorkspace(userId: string): string {
+  return path.join(resolveDataRoot(), "users", userId);
+}
+
+/** @deprecated Legacy global workspace — use resolveUserWorkspace(userId). */
 export function resolveWorkspaceRoot(): string {
   const configured = process.env.WORKSPACE_ROOT?.trim();
   if (configured) return path.resolve(configured);

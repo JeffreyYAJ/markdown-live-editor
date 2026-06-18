@@ -6,7 +6,7 @@ import {
   LayoutGrid,
   TerminalSquare,
 } from "lucide-react";
-import type { ViewMode } from "../App";
+import type { ViewMode } from "../types/view";
 
 interface TopbarProps {
   terminalOpen?: boolean;
@@ -21,6 +21,8 @@ interface TopbarProps {
   onExportMarkdown?: () => void;
   onExportHtml?: () => void;
   onPrint?: () => void;
+  userName?: string;
+  onSignOut?: () => void;
 }
 
 export default function Topbar({
@@ -36,6 +38,8 @@ export default function Topbar({
   onExportMarkdown,
   onExportHtml,
   onPrint,
+  userName,
+  onSignOut,
 }: TopbarProps) {
   const [fileMenuOpen, setFileMenuOpen] = useState(false);
   const fileMenuRef = useRef<HTMLDivElement>(null);
@@ -71,8 +75,13 @@ export default function Topbar({
 
   return (
     <header className="flex justify-between items-center px-4 h-10 bg-topbar font-mono text-xs border-b border-surface-dim shrink-0">
-      <div className="text-neon font-semibold drop-shadow-[0_0_8px_rgba(0,255,65,0.4)]">
-        ARCHITECT_OS
+      <div className="text-neon font-semibold drop-shadow-[0_0_8px_rgba(0,255,65,0.4)] flex items-center gap-3">
+        <span>ARCHITECT_OS</span>
+        {userName && (
+          <span className="text-dimmed text-[0.65rem] font-normal tracking-wide">
+            / {userName}
+          </span>
+        )}
       </div>
 
       <div className="flex gap-4 text-dimmed">
@@ -122,6 +131,15 @@ export default function Topbar({
         <span className="cursor-pointer hover:text-main transition-colors">
           Go
         </span>
+        {onSignOut && (
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="cursor-pointer hover:text-red-400 transition-colors"
+          >
+            Sign out
+          </button>
+        )}
       </div>
 
       <div className="flex items-center gap-2">

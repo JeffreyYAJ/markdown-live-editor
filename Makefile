@@ -33,13 +33,18 @@ install:
 env:
 	@if [ ! -f .env ]; then \
 		cp .env.example .env; \
-		echo "✓ .env créé depuis .env.example"; \
+		SECRET=$$(openssl rand -hex 32 2>/dev/null || head -c 32 /dev/urandom | xxd -p); \
+		if [ -n "$$SECRET" ]; then \
+			sed -i "s/^SESSION_SECRET=.*/SESSION_SECRET=$$SECRET/" .env; \
+		fi; \
+		echo "✓ .env créé depuis .env.example (SESSION_SECRET généré)"; \
 	else \
 		echo "✓ .env existe déjà"; \
 	fi
 
-## install + env
+## install + env + rebuild native modules
 setup: install env
+	$(NPM) rebuild better-sqlite3
 
 ## Backend + frontend en parallèle
 dev:

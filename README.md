@@ -16,37 +16,26 @@ A real-time markdown editor with live preview, built with React, TypeScript, and
 - **Local file server**: A Node.js API reads/writes markdown files on your machine (no cloud VPS needed)
 - **Resizable Panels**: Adjust the sidebar, editor, preview, and terminal layout
 
-## Local file workspace
+## Local file workspace (per user)
 
-By default, all markdown files live in the `workspace/` folder inside the project. The app talks to a small local API server that reads and writes files on disk — your machine acts as the server.
+Each authenticated user gets a **private folder** on disk:
+
+```
+data/users/{userId}/index.md
+```
 
 ```bash
-# Copy env template (optional — customize workspace path)
-cp .env.example .env
-
-# Start API server + Vite dev client together
-npm run dev
+cp .env.example .env   # set SESSION_SECRET
+make setup
+make dev
 ```
 
-- **Frontend**: http://localhost:5173 (proxies `/api` to the file server)
-- **File server**: http://localhost:3001
-- **Default workspace**: `./workspace` (override with `WORKSPACE_ROOT` in `.env`)
-
-Example `.env`:
-
-```env
-WORKSPACE_ROOT=/home/yaj/Documents/architect-workspace
-PORT=3001
-```
-
-Production-like local mode (single port):
-
-```bash
-npm run build
-npm run start   # serves dist/ + API on http://localhost:3001
-```
-
-You can also edit files directly in `workspace/` with any editor — reload the page to pick up changes made outside the app.
+| URL | Page |
+|-----|------|
+| http://localhost:5173/ | Landing |
+| http://localhost:5173/signup | Create account |
+| http://localhost:5173/login | Sign in |
+| http://localhost:5173/app | Editor (protected) |
 
 ### Prerequisites
 

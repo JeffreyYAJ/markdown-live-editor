@@ -35,6 +35,7 @@ async function request<T>(
   init?: RequestInit,
 ): Promise<T> {
   const res = await fetch(url, {
+    credentials: "include",
     headers: { "Content-Type": "application/json", ...init?.headers },
     ...init,
   });
@@ -45,7 +46,7 @@ async function request<T>(
   return data;
 }
 
-export async function checkHealth(): Promise<{ ok: boolean; workspace: string }> {
+export async function checkHealth(): Promise<{ ok: boolean; auth: boolean }> {
   return request("/api/health");
 }
 

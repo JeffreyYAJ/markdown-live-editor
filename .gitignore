@@ -40,7 +40,10 @@ dist-ssr
 coverage
 .nyc_output
 
-# Local workspace metadata (history snapshots)
+# User data (SQLite + per-user workspaces)
+data/
+
+# Legacy global workspace (deprecated)
 workspace/.architect/
 workspace/
 

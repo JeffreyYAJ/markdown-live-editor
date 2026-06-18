@@ -10,11 +10,15 @@
     "build": "tsc -b && vite build",
     "start": "tsx server/index.ts",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npm rebuild better-sqlite3"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "@types/prismjs": "^1.26.6",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.11.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -28,6 +32,7 @@
     "react-dom": "^19.2.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.7.5",
+    "react-router-dom": "^7.18.0",
     "react-simple-code-editor": "^0.14.1",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-highlight": "^7.0.2",
@@ -38,6 +43,9 @@
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^24.10.1",
@@ -49,9 +57,9 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "tsx": "^4.19.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "tsx": "^4.19.3",
     "vite": "^7.2.4"
   }
 }

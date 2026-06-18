@@ -139,9 +139,11 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       setFsConnected(false);
       setError(
-        err instanceof FilesApiError
-          ? err.message
-          : "Cannot reach local file server. Run: npm run dev",
+        err instanceof FilesApiError && err.status === 401
+          ? "Session expired — please sign in again"
+          : err instanceof FilesApiError
+            ? err.message
+            : "Cannot reach local file server. Run: npm run dev",
       );
     } finally {
       setIsLoading(false);

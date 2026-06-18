@@ -1,29 +1,52 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  handleMe,
+  handleSignIn,
+  handleSignOut,
+  handleSignUp,
+  requireAuth,
+  sessionSecret,
+  type AuthedRequest,
+} from "./auth.js";
+import { getDb } from "./db.js";
+import {
+  getOAuthProviders,
+  handleGithubCallback,
+  handleGithubStart,
+  handleGoogleCallback,
+  handleGoogleStart,
+} from "./oauth.js";
 import {
   appendHistorySnapshot,
   createFile,
   deleteFile,
-  ensureWorkspace,
   getHistory,
   listFiles,
   readFile,
   renameFile,
-  resolveWorkspaceRoot,
   uniquePath,
   writeFile,
 } from "./fs-utils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3001);
-const workspaceRoot = resolveWorkspaceRoot();
+const APP_URL = process.env.APP_URL?.trim() || "http://localhost:5173";
 
 const app = express();
-app.use(cors());
+
+app.use(
+  cors({
+    origin: APP_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json({ limit: "10mb" }));
+app.use(cookieParser(sessionSecret()));
 
 function requirePath(queryPath: unknown): string {
   const p = String(queryPath ?? "").trim();
@@ -31,23 +54,47 @@ function requirePath(queryPath: unknown): string {
   return p;
 }
 
+function message(err: unknown): string {
+  return err instanceof Error ? err.message : "Unknown error";
+}
+
+function workspace(req: AuthedRequest): string {
+  return req.workspaceRoot!;
+}
+
+// ── Public ────────────────────────────────────────────────────
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, workspace: workspaceRoot });
+  res.json({ ok: true, auth: true });
 });
 
-app.get("/api/workspace", async (_req, res) => {
+app.post("/api/auth/sign-up", (req, res) => void handleSignUp(req, res));
+app.post("/api/auth/sign-in", (req, res) => void handleSignIn(req, res));
+app.post("/api/auth/sign-out", handleSignOut);
+app.get("/api/auth/me", handleMe);
+app.get("/api/auth/providers", (_req, res) => {
+  res.json(getOAuthProviders());
+});
+
+app.get("/api/auth/google", handleGoogleStart);
+app.get("/api/auth/google/callback", handleGoogleCallback);
+app.get("/api/auth/github", handleGithubStart);
+app.get("/api/auth/github/callback", handleGithubCallback);
+
+// ── Protected file API (per-user workspace) ─────────────────────
+app.get("/api/workspace", requireAuth, async (req: AuthedRequest, res) => {
   try {
-    const files = await listFiles(workspaceRoot);
-    res.json({ root: workspaceRoot, files });
+    const root = workspace(req);
+    const files = await listFiles(root);
+    res.json({ root, files });
   } catch (err) {
     res.status(500).json({ error: message(err) });
   }
 });
 
-app.get("/api/files", async (req, res) => {
+app.get("/api/files", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const rel = requirePath(req.query.path);
-    const data = await readFile(workspaceRoot, rel);
+    const data = await readFile(workspace(req), rel);
     res.json({ path: rel, ...data });
   } catch (err) {
     const msg = message(err);
@@ -59,37 +106,39 @@ app.get("/api/files", async (req, res) => {
   }
 });
 
-app.put("/api/files", async (req, res) => {
+app.put("/api/files", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const rel = requirePath(req.query.path);
     const content = String(req.body?.content ?? "");
-    const { updatedAt } = await writeFile(workspaceRoot, rel, content);
-    await appendHistorySnapshot(workspaceRoot, rel, content);
+    const root = workspace(req);
+    const { updatedAt } = await writeFile(root, rel, content);
+    await appendHistorySnapshot(root, rel, content);
     res.json({ path: rel, updatedAt });
   } catch (err) {
     res.status(400).json({ error: message(err) });
   }
 });
 
-app.post("/api/files", async (req, res) => {
+app.post("/api/files", requireAuth, async (req: AuthedRequest, res) => {
   try {
+    const root = workspace(req);
     let rel = String(req.body?.path ?? "").trim();
     const content = String(req.body?.content ?? "");
 
     if (!rel) {
-      rel = await uniquePath(workspaceRoot, "untitled.md");
+      rel = await uniquePath(root, "untitled.md");
     } else if (!/\.(md|markdown|txt)$/i.test(rel)) {
       rel = `${rel}.md`;
     }
 
-    const { updatedAt } = await createFile(workspaceRoot, rel, content);
+    const { updatedAt } = await createFile(root, rel, content);
     res.status(201).json({ path: rel, updatedAt });
   } catch (err) {
     res.status(400).json({ error: message(err) });
   }
 });
 
-app.patch("/api/files", async (req, res) => {
+app.patch("/api/files", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const rel = requirePath(req.query.path);
     const newPath = String(req.body?.newPath ?? "").trim();
@@ -97,51 +146,52 @@ app.patch("/api/files", async (req, res) => {
       res.status(400).json({ error: "newPath is required" });
       return;
     }
-    const result = await renameFile(workspaceRoot, rel, newPath);
+    const result = await renameFile(workspace(req), rel, newPath);
     res.json(result);
   } catch (err) {
     res.status(400).json({ error: message(err) });
   }
 });
 
-app.delete("/api/files", async (req, res) => {
+app.delete("/api/files", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const rel = requirePath(req.query.path);
-    await deleteFile(workspaceRoot, rel);
+    await deleteFile(workspace(req), rel);
     res.json({ ok: true });
   } catch (err) {
     res.status(400).json({ error: message(err) });
   }
 });
 
-app.get("/api/history", async (req, res) => {
+app.get("/api/history", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const rel = requirePath(req.query.path);
-    const snapshots = await getHistory(workspaceRoot, rel);
+    const snapshots = await getHistory(workspace(req), rel);
     res.json({ path: rel, snapshots });
   } catch (err) {
     res.status(400).json({ error: message(err) });
   }
 });
 
-app.post("/api/history/restore", async (req, res) => {
+app.post("/api/history/restore", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const rel = requirePath(req.query.path);
     const ts = Number(req.body?.ts);
-    const snapshots = await getHistory(workspaceRoot, rel);
+    const root = workspace(req);
+    const snapshots = await getHistory(root, rel);
     const snap = snapshots.find((s) => s.ts === ts);
     if (!snap) {
       res.status(404).json({ error: "Snapshot not found" });
       return;
     }
-    const { updatedAt } = await writeFile(workspaceRoot, rel, snap.content);
+    const { updatedAt } = await writeFile(root, rel, snap.content);
     res.json({ path: rel, content: snap.content, updatedAt });
   } catch (err) {
     res.status(400).json({ error: message(err) });
   }
 });
 
-// Serve Vite build when running server alone (npm run start)
+// ── Static (production) ───────────────────────────────────────
 const distPath = path.resolve(__dirname, "../dist");
 app.use(express.static(distPath));
 app.get("*", (req, res, next) => {
@@ -151,15 +201,12 @@ app.get("*", (req, res, next) => {
   });
 });
 
-function message(err: unknown): string {
-  return err instanceof Error ? err.message : "Unknown error";
-}
-
 async function main() {
-  await ensureWorkspace(workspaceRoot);
+  getDb();
   app.listen(PORT, () => {
-    console.log(`ARCHITECT_OS file server running on http://localhost:${PORT}`);
-    console.log(`Workspace: ${workspaceRoot}`);
+    console.log(`ARCHITECT_OS server  http://localhost:${PORT}`);
+    console.log(`CORS origin        ${APP_URL}`);
+    console.log(`User data          data/users/{userId}/`);
   });
 }
 
