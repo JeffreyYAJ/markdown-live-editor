@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import HeroPreview from "../components/landing/HeroPreview";
@@ -12,6 +11,8 @@ import {
   type ThemeKey,
 } from "./landing-themes";
 import { LANDING_CONTAINER, LANDING_WIDE } from "./landing-layout";
+import { useAppTheme } from "../hooks/useAppTheme";
+import ThemeSwitcher from "../components/auth/ThemeSwitcher";
 
 function FeatureCard({
   feature,
@@ -81,7 +82,7 @@ function FeatureCard({
 
 export default function Landing() {
   const { user } = useAuth();
-  const [currentTheme, setCurrentTheme] = useState<ThemeKey>("cyber-green");
+  const { theme: currentTheme, setTheme: setCurrentTheme } = useAppTheme();
   const t = landingThemes[currentTheme];
 
   const primaryTo = user ? "/app" : "/signup";
@@ -294,33 +295,11 @@ export default function Landing() {
       </footer>
 
       {/* Theme switcher */}
-      <div
-        className="fixed bottom-5 right-5 z-50 flex gap-1.5 p-1.5 rounded-full border border-zinc-800 bg-zinc-950/90 backdrop-blur-sm shadow-xl"
-        role="group"
-        aria-label="Theme preview"
-      >
-        {(Object.keys(landingThemes) as ThemeKey[]).map((key) => (
-          <button
-            key={key}
-            type="button"
-            title={landingThemes[key].name}
-            onClick={() => setCurrentTheme(key)}
-            className={`w-8 h-8 rounded-full border-2 transition-transform ${
-              currentTheme === key
-                ? "border-white scale-110"
-                : "border-transparent opacity-60 hover:opacity-100"
-            }`}
-            style={{
-              background:
-                key === "light-blue"
-                  ? "#0055ff"
-                  : key === "cyber-green"
-                    ? "#00ff66"
-                    : "#ffffff",
-            }}
-          />
-        ))}
-      </div>
+      <ThemeSwitcher
+        theme={currentTheme}
+        onChange={setCurrentTheme}
+        className="fixed bottom-5 right-5 z-50 shadow-xl"
+      />
     </div>
   );
 }

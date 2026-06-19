@@ -3,6 +3,10 @@ import { Link, useNavigate, useLocation, useSearchParams } from "react-router-do
 import { useAuth } from "../context/AuthContext";
 import { AuthApiError } from "../api/auth";
 import OAuthButtons from "../components/OAuthButtons";
+import AuthPageLayout from "../components/auth/AuthPageLayout";
+import AuthField from "../components/auth/AuthField";
+import { authThemes } from "./auth-themes";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 export default function Login() {
   const { signIn, user } = useAuth();
@@ -12,6 +16,9 @@ export default function Login() {
   const oauthError = searchParams.get("error");
   const from = (location.state as { from?: { pathname: string } })?.from
     ?.pathname ?? "/app";
+
+  const { theme, setTheme } = useAppTheme();
+  const t = authThemes[theme];
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,17 +46,29 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout
-      title="Sign in"
-      subtitle="Access your private workspace"
+    <AuthPageLayout
+      theme={theme}
+      onThemeChange={setTheme}
+      mode="login"
+      footer={
+        <p className={`text-center text-sm ${t.subtext} font-mono`}>
+          No account?{" "}
+          <Link to="/signup" className={t.linkClass}>
+            Create one
+          </Link>
+        </p>
+      }
     >
-      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5">
         {(error || oauthError) && (
-          <p className="text-red-400 text-sm font-mono px-3 py-2 rounded border border-red-400/30 bg-red-400/10">
+          <p
+            className={`text-sm font-mono px-4 py-3 rounded-sm border ${t.errorClass}`}
+          >
             {error || oauthError}
           </p>
         )}
-        <Field
+        <AuthField
+          theme={t}
           label="Email"
           type="email"
           value={email}
@@ -57,7 +76,8 @@ export default function Login() {
           autoComplete="email"
           required
         />
-        <Field
+        <AuthField
+          theme={t}
           label="Password"
           type="password"
           value={password}
@@ -68,82 +88,14 @@ export default function Login() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-2.5 rounded-sm bg-neon text-black font-mono font-semibold uppercase tracking-wider text-sm hover:bg-[#00e63a] transition-colors disabled:opacity-50"
+          className={`w-full py-3.5 rounded-sm font-mono font-bold uppercase tracking-widest text-xs md:text-sm transition-colors ${t.btnPrimary}`}
         >
           {submitting ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <div className="mt-4">
-        <OAuthButtons />
+      <div className="mt-6">
+        <OAuthButtons theme={t} />
       </div>
-      <p className="mt-6 text-center text-sm text-dimmed font-mono">
-        No account?{" "}
-        <Link to="/signup" className="text-neon hover:underline">
-          Create one
-        </Link>
-      </p>
-    </AuthLayout>
+    </AuthPageLayout>
   );
 }
-
-function Field({
-  label,
-  type,
-  value,
-  onChange,
-  autoComplete,
-  required,
-}: {
-  label: string;
-  type: string;
-  value: string;
-  onChange: (v: string) => void;
-  autoComplete?: string;
-  required?: boolean;
-}) {
-  return (
-    <label className="block">
-      <span className="font-mono text-xs text-dimmed tracking-widest uppercase mb-1.5 block">
-        {label}
-      </span>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        autoComplete={autoComplete}
-        required={required}
-        className="w-full bg-input-bg border border-surface-dim text-main rounded-sm py-2 px-3 font-mono text-sm outline-none focus:ring-1 focus:ring-neon-dim"
-      />
-    </label>
-  );
-}
-
-function AuthLayout({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string;
-  subtitle: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="min-h-screen bg-editor flex flex-col items-center justify-center px-4">
-      <Link
-        to="/"
-        className="mb-8 font-mono text-neon font-semibold drop-shadow-[0_0_8px_rgba(0,255,65,0.4)]"
-      >
-        ARCHITECT_OS
-      </Link>
-      <div
-        className="w-full max-w-md p-8 rounded-lg border border-surface-dim"
-        style={{ backgroundColor: "var(--color-sidebar)" }}
-      >
-        <h1 className="text-2xl font-bold text-heading mb-1">{title}</h1>
-        <p className="text-dimmed text-sm mb-6">{subtitle}</p>
-        {children}
-      </div>
-    </div>
-  );
-}
-

@@ -3,10 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { AuthApiError } from "../api/auth";
 import OAuthButtons from "../components/OAuthButtons";
+import AuthPageLayout from "../components/auth/AuthPageLayout";
+import AuthField from "../components/auth/AuthField";
+import { authThemes } from "./auth-themes";
+import { useAppTheme } from "../hooks/useAppTheme";
 
 export default function Signup() {
   const { signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { theme, setTheme } = useAppTheme();
+  const t = authThemes[theme];
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -34,92 +40,104 @@ export default function Signup() {
     }
   };
 
+  const passwordStrength =
+    password.length === 0
+      ? null
+      : password.length < 8
+        ? "weak"
+        : password.length < 12
+          ? "medium"
+          : "strong";
+
   return (
-    <div className="min-h-screen bg-editor flex flex-col items-center justify-center px-4">
-      <Link
-        to="/"
-        className="mb-8 font-mono text-neon font-semibold drop-shadow-[0_0_8px_rgba(0,255,65,0.4)]"
-      >
-        ARCHITECT_OS
-      </Link>
-      <div
-        className="w-full max-w-md p-8 rounded-lg border border-surface-dim"
-        style={{ backgroundColor: "var(--color-sidebar)" }}
-      >
-        <h1 className="text-2xl font-bold text-heading mb-1">Create account</h1>
-        <p className="text-dimmed text-sm mb-6">
-          Get your own private markdown workspace
-        </p>
-
-        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
-          {error && (
-            <p className="text-red-400 text-sm font-mono px-3 py-2 rounded border border-red-400/30 bg-red-400/10">
-              {error}
-            </p>
-          )}
-          <label className="block">
-            <span className="font-mono text-xs text-dimmed tracking-widest uppercase mb-1.5 block">
-              Name
-            </span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoComplete="name"
-              placeholder="Optional"
-              className="w-full bg-input-bg border border-surface-dim text-main rounded-sm py-2 px-3 font-mono text-sm outline-none focus:ring-1 focus:ring-neon-dim"
-            />
-          </label>
-          <label className="block">
-            <span className="font-mono text-xs text-dimmed tracking-widest uppercase mb-1.5 block">
-              Email
-            </span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-              className="w-full bg-input-bg border border-surface-dim text-main rounded-sm py-2 px-3 font-mono text-sm outline-none focus:ring-1 focus:ring-neon-dim"
-            />
-          </label>
-          <label className="block">
-            <span className="font-mono text-xs text-dimmed tracking-widest uppercase mb-1.5 block">
-              Password
-            </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              required
-              minLength={8}
-              className="w-full bg-input-bg border border-surface-dim text-main rounded-sm py-2 px-3 font-mono text-sm outline-none focus:ring-1 focus:ring-neon-dim"
-            />
-            <span className="text-xs text-inactive mt-1 block">
-              Minimum 8 characters
-            </span>
-          </label>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-2.5 rounded-sm bg-neon text-black font-mono font-semibold uppercase tracking-wider text-sm hover:bg-[#00e63a] transition-colors disabled:opacity-50"
-          >
-            {submitting ? "Creating…" : "Create account"}
-          </button>
-        </form>
-
-        <div className="mt-4">
-          <OAuthButtons />
-        </div>
-
-        <p className="mt-6 text-center text-sm text-dimmed font-mono">
+    <AuthPageLayout
+      theme={theme}
+      onThemeChange={setTheme}
+      mode="signup"
+      footer={
+        <p className={`text-center text-sm ${t.subtext} font-mono`}>
           Already have an account?{" "}
-          <Link to="/login" className="text-neon hover:underline">
+          <Link to="/login" className={t.linkClass}>
             Sign in
           </Link>
         </p>
+      }
+    >
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5">
+        {error && (
+          <p
+            className={`text-sm font-mono px-4 py-3 rounded-sm border ${t.errorClass}`}
+          >
+            {error}
+          </p>
+        )}
+        <AuthField
+          theme={t}
+          label="Display name"
+          type="text"
+          value={name}
+          onChange={setName}
+          autoComplete="name"
+          placeholder="Optional"
+        />
+        <AuthField
+          theme={t}
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          autoComplete="email"
+          required
+        />
+        <div>
+          <AuthField
+            theme={t}
+            label="Password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="new-password"
+            required
+            minLength={8}
+            hint="Minimum 8 characters"
+          />
+          {passwordStrength && (
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex-1 flex gap-1 h-1">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className={`flex-1 rounded-full transition-colors ${
+                      (passwordStrength === "weak" && i === 1) ||
+                      (passwordStrength === "medium" && i <= 2) ||
+                      (passwordStrength === "strong" && i <= 3)
+                        ? theme === "light-blue"
+                          ? "bg-[#0055ff]"
+                          : theme === "cyber-green"
+                            ? "bg-[#00ff66]"
+                            : "bg-white"
+                        : t.divider
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className={`font-mono text-[10px] uppercase ${t.subtext}`}>
+                {passwordStrength}
+              </span>
+            </div>
+          )}
+        </div>
+        <button
+          type="submit"
+          disabled={submitting}
+          className={`w-full py-3.5 rounded-sm font-mono font-bold uppercase tracking-widest text-xs md:text-sm transition-colors ${t.btnPrimary}`}
+        >
+          {submitting ? "Creating…" : "Create account"}
+        </button>
+      </form>
+      <div className="mt-6">
+        <OAuthButtons theme={t} />
       </div>
-    </div>
+    </AuthPageLayout>
   );
 }

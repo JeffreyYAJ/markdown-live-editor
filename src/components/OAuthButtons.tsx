@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { fetchOAuthProviders } from "../api/auth";
+import type { AuthTheme } from "../pages/auth-themes";
 
-export default function OAuthButtons() {
+interface OAuthButtonsProps {
+  theme: AuthTheme;
+}
+
+export default function OAuthButtons({ theme: t }: OAuthButtonsProps) {
   const [providers, setProviders] = useState({ google: false, github: false });
   const [loaded, setLoaded] = useState(false);
 
@@ -15,29 +20,31 @@ export default function OAuthButtons() {
   if (!loaded || (!providers.google && !providers.github)) return null;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-surface-dim" />
-        <span className="text-xs text-inactive font-mono uppercase tracking-widest">
-          or
+        <div className={`h-px flex-1 ${t.divider}`} />
+        <span
+          className={`text-[10px] ${t.subtext} font-mono uppercase tracking-[0.2em]`}
+        >
+          or continue with
         </span>
-        <div className="h-px flex-1 bg-surface-dim" />
+        <div className={`h-px flex-1 ${t.divider}`} />
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         {providers.google && (
           <a
             href="/api/auth/google"
-            className="w-full py-2.5 rounded-sm border border-surface-dim text-main font-mono text-sm text-center hover:border-neon-dim hover:text-neon transition-colors"
+            className={`w-full py-3 rounded-sm border font-mono text-sm text-center transition-colors ${t.btnOAuth}`}
           >
-            Continue with Google
+            Google
           </a>
         )}
         {providers.github && (
           <a
             href="/api/auth/github"
-            className="w-full py-2.5 rounded-sm border border-surface-dim text-main font-mono text-sm text-center hover:border-neon-dim hover:text-neon transition-colors"
+            className={`w-full py-3 rounded-sm border font-mono text-sm text-center transition-colors ${t.btnOAuth}`}
           >
-            Continue with GitHub
+            GitHub
           </a>
         )}
       </div>
