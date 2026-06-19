@@ -93,9 +93,19 @@
     background-color: var(--color-editor);
     color: var(--color-main);
     font-family: var(--font-sans);
-    overflow: hidden;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
+  }
+
+  /* Editor full-viewport lock — toggled from EditorApp */
+  body.app-locked,
+  body.app-locked #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  html:has(body.app-locked) {
+    height: 100%;
   }
 
   /* Custom Scrollbar */

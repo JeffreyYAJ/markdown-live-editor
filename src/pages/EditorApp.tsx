@@ -448,5 +448,10 @@ function EditorAppInner() {
 }
 
 export default function EditorApp() {
+  useEffect(() => {
+    document.body.classList.add("app-locked");
+    return () => document.body.classList.remove("app-locked");
+  }, []);
+
   return <EditorAppInner />;
 }
