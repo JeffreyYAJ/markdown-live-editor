@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import HeroPreview from "../components/landing/HeroPreview";
 import RenderingCompare from "../components/landing/RenderingCompare";
+import StatsSection from "../components/landing/StatsSection";
 import {
   landingThemes,
   type LandingTheme,
@@ -199,23 +200,7 @@ export default function Landing() {
 
       <RenderingCompare theme={currentTheme} />
 
-      {/* Stats */}
-      <section className="max-w-5xl mx-auto px-6 py-16 md:py-20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 text-center font-mono">
-          {t.stats.map((item) => (
-            <div key={item.lab} className="flex flex-col items-center">
-              <div className="text-xl md:text-2xl font-bold mb-2 tracking-tight">
-                <span className={`${t.subtext} opacity-50 mr-1`}>{item.sym[0]}</span>
-                <span className={t.accentText}>{item.val}</span>
-                <span className={`${t.subtext} opacity-50 ml-1`}>{item.sym[1]}</span>
-              </div>
-              <span className="text-[9px] uppercase tracking-[0.2em] text-zinc-500">
-                {item.lab}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
+      <StatsSection theme={currentTheme} />
 
       {/* Final CTA */}
       <section className="max-w-5xl mx-auto px-6 py-20 md:py-28 text-center">
