@@ -10,6 +10,7 @@ import {
   loginUser,
   SESSION_COOKIE,
 } from "./oauth-helpers.js";
+import { clearCookieOptions } from "./cookies.js";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -36,7 +37,7 @@ function purgeExpiredSessions(): void {
 }
 
 function clearSessionCookie(res: Response): void {
-  res.clearCookie(SESSION_COOKIE, { path: "/" });
+  res.clearCookie(SESSION_COOKIE, clearCookieOptions());
 }
 
 export function requireAuth(

@@ -5,6 +5,12 @@ export interface PublicUser {
   image?: string | null;
 }
 
+export interface UserProfile {
+  user: PublicUser;
+  hasPassword: boolean;
+  oauthProviders: string[];
+}
+
 class AuthApiError extends Error {
   status: number;
 
@@ -30,6 +36,27 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 export async function fetchMe(): Promise<{ user: PublicUser | null }> {
   return request("/api/auth/me");
+}
+
+export async function fetchProfile(): Promise<UserProfile> {
+  return request("/api/auth/profile");
+}
+
+export async function updateProfile(name: string): Promise<UserProfile> {
+  return request("/api/auth/profile", {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  await request("/api/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
 }
 
 export async function signUp(

@@ -19,7 +19,14 @@ import type { ViewMode } from "../types/view";
 export type { ViewMode };
 
 function EditorAppInner() {
-  const { user, signOut } = useAuth();
+  const {
+    user,
+    signOut,
+    hasPassword,
+    oauthProviders,
+    updateProfile,
+    changePassword,
+  } = useAuth();
   const navigate = useNavigate();
   const {
     activeDoc,
@@ -292,7 +299,11 @@ function EditorAppInner() {
         onExportMarkdown={exportMarkdown}
         onExportHtml={exportHtml}
         onPrint={() => window.print()}
-        userName={user?.name}
+        user={user}
+        hasPassword={hasPassword}
+        oauthProviders={oauthProviders}
+        onUpdateName={updateProfile}
+        onChangePassword={changePassword}
         onSignOut={async () => {
           await signOut();
           navigate("/login");

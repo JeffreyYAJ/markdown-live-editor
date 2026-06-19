@@ -16,6 +16,31 @@ A real-time markdown editor with live preview, built with React, TypeScript, and
 - **Local file server**: A Node.js API reads/writes markdown files on your machine (no cloud VPS needed)
 - **Resizable Panels**: Adjust the sidebar, editor, preview, and terminal layout
 
+## Authentication
+
+- **Email + password** — sign up / sign in with per-user private workspace
+- **OAuth** — Google & GitHub (configure `GOOGLE_*` / `GITHUB_*` in `.env`)
+- **Profile menu** — avatar, name, email, change/set password, sign out
+- OAuth accounts link automatically when the email matches an existing account
+
+### OAuth redirect URIs
+
+| Environment | Google / GitHub callback |
+|-------------|--------------------------|
+| Dev | `http://localhost:5173/api/auth/{google\|github}/callback` |
+| Prod | `https://your-domain/api/auth/{google\|github}/callback` |
+
+## Production (VPS / Docker)
+
+```bash
+cp .env.example .env
+# Set APP_URL, SESSION_SECRET, TRUST_PROXY=true, COOKIE_SECURE=true
+
+make docker
+```
+
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for HTTPS (Caddy/Nginx), backups, and **[docs/MIGRATION_POSTGRESQL.md](docs/MIGRATION_POSTGRESQL.md)** for PostgreSQL migration.
+
 ## Local file workspace (per user)
 
 Each authenticated user gets a **private folder** on disk:

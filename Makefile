@@ -4,7 +4,7 @@
 SHELL := /bin/bash
 NPM   := npm
 
-.PHONY: help install setup env dev backend frontend server client build start lint preview clean
+.PHONY: help install setup env dev backend frontend server client build start lint preview clean docker
 
 ## Affiche les commandes disponibles
 help:
@@ -18,6 +18,7 @@ help:
 	@echo "  make frontend    Lance uniquement Vite (port 5173)"
 	@echo "  make build       Compile le client pour la production"
 	@echo "  make start       Build + serveur unique (API + dist sur :3001)"
+	@echo "  make docker      Build et lance via docker compose"
 	@echo "  make lint        ESLint"
 	@echo "  make preview     Preview Vite du build (client seul)"
 	@echo "  make clean       Supprime dist/ et le cache Vite"
@@ -65,6 +66,10 @@ build:
 ## Build puis serveur unique (http://localhost:3001)
 start: build
 	$(NPM) run start
+
+## Production via Docker Compose
+docker:
+	docker compose up -d --build
 
 ## Vérification ESLint
 lint:

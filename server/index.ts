@@ -22,6 +22,11 @@ import {
   handleGoogleStart,
 } from "./oauth.js";
 import {
+  handleGetProfile,
+  handleUpdateProfile,
+  handleChangePassword,
+} from "./profile.js";
+import {
   appendHistorySnapshot,
   createFile,
   deleteFile,
@@ -38,6 +43,10 @@ const PORT = Number(process.env.PORT ?? 3001);
 const APP_URL = process.env.APP_URL?.trim() || "http://localhost:5173";
 
 const app = express();
+
+if (process.env.TRUST_PROXY === "true") {
+  app.set("trust proxy", 1);
+}
 
 app.use(
   cors({
@@ -79,6 +88,14 @@ app.get("/api/auth/google", handleGoogleStart);
 app.get("/api/auth/google/callback", handleGoogleCallback);
 app.get("/api/auth/github", handleGithubStart);
 app.get("/api/auth/github/callback", handleGithubCallback);
+
+app.get("/api/auth/profile", requireAuth, handleGetProfile);
+app.patch("/api/auth/profile", requireAuth, (req, res) =>
+  void handleUpdateProfile(req as AuthedRequest, res),
+);
+app.post("/api/auth/change-password", requireAuth, (req, res) =>
+  void handleChangePassword(req as AuthedRequest, res),
+);
 
 // ── Protected file API (per-user workspace) ─────────────────────
 app.get("/api/workspace", requireAuth, async (req: AuthedRequest, res) => {

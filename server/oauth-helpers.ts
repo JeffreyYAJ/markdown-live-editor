@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Response } from "express";
 import { getDb, toPublicUser, type DbUser } from "./db.js";
 import { ensureWorkspace, resolveUserWorkspace } from "./fs-utils.js";
+import { sessionCookieOptions, clearCookieOptions } from "./cookies.js";
 
 const SESSION_COOKIE = "architect_session";
 const SESSION_DAYS = 30;
@@ -20,13 +21,11 @@ export function createSession(userId: string): string {
 }
 
 export function setSessionCookie(res: Response, sessionId: string): void {
-  res.cookie(SESSION_COOKIE, sessionId, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
-    path: "/",
-  });
+  res.cookie(
+    SESSION_COOKIE,
+    sessionId,
+    sessionCookieOptions(SESSION_DAYS * 24 * 60 * 60 * 1000),
+  );
 }
 
 export function loginUser(userId: string, res: Response): void {
@@ -129,13 +128,7 @@ export function oauthCallbackUrl(provider: "google" | "github"): string {
 }
 
 export function setOAuthStateCookie(res: Response, state: string): void {
-  res.cookie("oauth_state", state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 10 * 60 * 1000,
-    path: "/",
-  });
+  res.cookie("oauth_state", state, sessionCookieOptions(10 * 60 * 1000));
 }
 
 export function verifyOAuthState(
@@ -143,7 +136,7 @@ export function verifyOAuthState(
   state: string | undefined,
   cookieState: string | undefined,
 ): boolean {
-  res.clearCookie("oauth_state", { path: "/" });
+  res.clearCookie("oauth_state", clearCookieOptions());
   return Boolean(state && cookieState && state === cookieState);
 }
 
