@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import HeroPreview from "../components/landing/HeroPreview";
+import RenderingCompare from "../components/landing/RenderingCompare";
 import {
   landingThemes,
   type LandingTheme,
@@ -196,59 +197,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Comparison */}
-      <section className={`border-t border-b ${t.compSectionBg} py-16 md:py-20`}>
-        <div className="max-w-5xl mx-auto px-6 text-center mb-10">
-          <h2 className="text-lg md:text-xl font-black uppercase tracking-wider mb-2">
-            {t.compTitle}
-          </h2>
-          <p
-            className={`${t.accentText} font-mono text-[9px] uppercase tracking-[0.25em]`}
-          >
-            EXPERIENCE ZERO-LATENCY VISUAL FEEDBACK
-          </p>
-        </div>
-
-        <div
-          className={`max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 border ${t.border} overflow-hidden`}
-        >
-          <div className={`p-6 font-mono text-xs text-left border-b md:border-b-0 md:border-r ${t.compSourceBg}`}>
-            <div className="text-[9px] uppercase tracking-widest pb-3 mb-4 border-b border-inherit opacity-60">
-              {t.compSourceLabel}
-            </div>
-            <p>
-              <span className="opacity-30 mr-2">01</span>
-              <span className={t.accentText}># {t.compProject}</span>
-            </p>
-            <p>
-              <span className="opacity-30 mr-2">02</span>
-            </p>
-            <p>
-              <span className="opacity-30 mr-2">03</span> The **Neural_Editor**
-              delivers
-            </p>
-            <p>
-              <span className="opacity-30 mr-2">04</span> unprecedented clarity
-              for
-            </p>
-            <p>
-              <span className="opacity-30 mr-2">05</span> professional architects.
-            </p>
-          </div>
-          <div className={`p-6 font-mono text-xs text-left ${t.compPreviewBg}`}>
-            <div className="text-[9px] uppercase tracking-widest pb-3 mb-4 border-b border-inherit opacity-60 flex justify-between">
-              <span>{t.compPreviewLabel}</span>
-              <span className={t.accentText}>● SYSTEM READY</span>
-            </div>
-            <h3 className="text-base font-black uppercase mb-2">{t.compProject}</h3>
-            <p className="text-[11px] leading-relaxed">
-              The{" "}
-              <span className={`${t.accentText} font-bold`}>Neural_Editor</span>{" "}
-              delivers unprecedented clarity for professional architects.
-            </p>
-          </div>
-        </div>
-      </section>
+      <RenderingCompare theme={currentTheme} />
 
       {/* Stats */}
       <section className="max-w-5xl mx-auto px-6 py-16 md:py-20">
