@@ -84,9 +84,9 @@ export const landingThemes: Record<ThemeKey, LandingTheme> = {
     heroDesc:
       "The professional markdown environment for digital architects. Experience zero-latency real-time preview, precision typography, and seamless cloud integration.",
     btnPrimary:
-      "bg-[#0055ff] text-white hover:bg-blue-600 px-10 py-3.5 font-bold tracking-widest uppercase text-[11px]",
+      "bg-[#0055ff] text-white hover:bg-blue-600 px-12 py-4 font-bold tracking-widest uppercase text-xs md:text-sm",
     btnSecondary:
-      "border border-slate-300 text-slate-600 hover:bg-slate-50 px-10 py-3.5 tracking-widest uppercase text-[11px]",
+      "border border-slate-300 text-slate-600 hover:bg-slate-50 px-12 py-4 tracking-widest uppercase text-xs md:text-sm",
     secondaryLabel: "VIEW DESKTOP",
     featuresTitle: "ARCHITECTURAL GRADE INTERFACE",
     featuresDesc:
@@ -162,9 +162,9 @@ export const landingThemes: Record<ThemeKey, LandingTheme> = {
     heroDesc:
       "The professional markdown environment for digital architects. Experience zero-latency real-time preview, precision typography, and seamless cloud integration.",
     btnPrimary:
-      "bg-[#00ff66] text-black hover:bg-[#00dd55] px-10 py-3.5 font-bold tracking-widest uppercase text-[11px]",
+      "bg-[#00ff66] text-black hover:bg-[#00dd55] px-12 py-4 font-bold tracking-widest uppercase text-xs md:text-sm",
     btnSecondary:
-      "border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 px-10 py-3.5 tracking-widest uppercase text-[11px]",
+      "border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 px-12 py-4 tracking-widest uppercase text-xs md:text-sm",
     secondaryLabel: "[ VIEW ROADMAP ]",
     featuresTitle: "HARDWARE OPTIMIZED INTERFACE",
     featuresDesc:
@@ -240,9 +240,9 @@ export const landingThemes: Record<ThemeKey, LandingTheme> = {
     heroDesc:
       "An obsidian-grade markdown environment designed for elite architects. Direct-to-metal performance with zero-latency visual feedback and precision-focused typography.",
     btnPrimary:
-      "bg-white text-black hover:bg-zinc-200 px-10 py-3.5 font-bold tracking-widest uppercase text-[11px]",
+      "bg-white text-black hover:bg-zinc-200 px-12 py-4 font-bold tracking-widest uppercase text-xs md:text-sm",
     btnSecondary:
-      "border border-zinc-700 text-zinc-400 hover:text-white px-10 py-3.5 tracking-widest uppercase text-[11px]",
+      "border border-zinc-700 text-zinc-400 hover:text-white px-12 py-4 tracking-widest uppercase text-xs md:text-sm",
     secondaryLabel: "VIEW ARCHIVE",
     featuresTitle: "MONOCHROME PRECISION",
     featuresDesc:

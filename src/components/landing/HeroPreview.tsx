@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { ThemeKey } from "./landing-themes";
+import type { ThemeKey } from "../../pages/landing-themes";
 
 interface HeroPreviewProps {
   theme: ThemeKey;
@@ -23,7 +23,7 @@ function EditorLine({
       className={`flex items-start gap-1 text-left ${highlight ? highlightClass : ""}`}
     >
       <span
-        className={`${lineNumClass} w-7 shrink-0 select-none text-[10px] ${highlight ? "opacity-40" : ""}`}
+        className={`${lineNumClass} w-8 shrink-0 select-none text-[11px] md:text-xs ${highlight ? "opacity-40" : ""}`}
       >
         {n}
       </span>
@@ -43,14 +43,14 @@ function WindowChrome({
 }) {
   return (
     <div
-      className={`relative flex items-center gap-2 px-4 py-2.5 border-b ${barClass} ${borderClass}`}
+      className={`relative flex items-center gap-2 px-5 py-3 border-b ${barClass} ${borderClass}`}
     >
-      <div className="flex items-center gap-1.5">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+      <div className="flex items-center gap-2">
+        <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+        <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
+        <span className="w-3 h-3 rounded-full bg-[#28c840]" />
       </div>
-      <span className="absolute left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-wider uppercase">
+      <span className="absolute left-1/2 -translate-x-1/2 font-mono text-[11px] md:text-xs tracking-wider uppercase">
         {title}
       </span>
     </div>
@@ -63,19 +63,19 @@ function LightBluePreview() {
   const lineNum = "text-slate-300";
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-sm overflow-hidden border border-slate-200 bg-white shadow-[0_24px_80px_rgba(0,85,255,0.1)] text-left">
+    <div className="w-full rounded-sm overflow-hidden border border-slate-200 bg-white shadow-[0_24px_80px_rgba(0,85,255,0.12)] text-left">
       <WindowChrome
         title="NEURAL_EDITOR_V1.0 — ARCHITECT_OS"
         barClass="bg-slate-50 text-slate-400"
         borderClass="border-slate-200"
       />
 
-      <div className="grid grid-cols-[168px_1fr] min-h-[340px] font-mono text-[11px] leading-[1.65]">
-        <aside className="bg-slate-50 border-r border-slate-200 p-4 text-left">
-          <div className="text-[10px] font-bold tracking-[0.2em] text-slate-400 mb-4">
+      <div className="grid grid-cols-[200px_1fr] min-h-[400px] md:min-h-[440px] font-mono text-xs md:text-sm leading-[1.65]">
+        <aside className="bg-slate-50 border-r border-slate-200 p-5 text-left">
+          <div className="text-[11px] font-bold tracking-[0.2em] text-slate-400 mb-5">
             WORKSPACE
           </div>
-          <div className="space-y-2 text-[10px]">
+          <div className="space-y-2.5 text-[11px]">
             <div className={`${blue} flex items-center gap-1.5 font-semibold`}>
               <span className="opacity-60">▸</span>
               <span>project_alpha</span>
@@ -89,8 +89,8 @@ function LightBluePreview() {
           </div>
         </aside>
 
-        <div className="relative bg-white text-slate-700 p-4 pr-28 text-left">
-          <span className="absolute top-3 right-4 border border-[#0055ff]/30 text-[#0055ff] text-[9px] font-bold tracking-widest px-2 py-0.5 uppercase">
+        <div className="relative bg-white text-slate-700 p-5 md:p-6 pr-32 text-left">
+          <span className="absolute top-4 right-5 border border-[#0055ff]/30 text-[#0055ff] text-[10px] font-bold tracking-widest px-2.5 py-1 uppercase">
             PREVIEW: LIVE
           </span>
 
@@ -158,21 +158,21 @@ function CyberGreenPreview() {
   const lineNum = "text-[#2a3d2a]";
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-sm overflow-hidden border border-[#2a1525] shadow-[0_0_40px_rgba(0,255,102,0.08)] text-left">
+    <div className="w-full rounded-sm overflow-hidden border border-[#2a1525] shadow-[0_0_50px_rgba(0,255,102,0.1)] text-left">
       <WindowChrome
         title="MAIN_CONSOLE.SH — ARCHITECT_OS"
         barClass="bg-[#1a0b16] text-[#6b5a6b]"
         borderClass="border-[#2a1525]"
       />
 
-      <div className="grid grid-cols-[168px_1fr] min-h-[340px] font-mono text-[11px] leading-[1.65]">
-        <aside className="bg-[#1a0b16] border-r border-[#2a1525] p-4 text-left">
+      <div className="grid grid-cols-[200px_1fr] min-h-[400px] md:min-h-[440px] font-mono text-xs md:text-sm leading-[1.65]">
+        <aside className="bg-[#1a0b16] border-r border-[#2a1525] p-5 text-left">
           <div
-            className={`${green} text-[10px] font-bold tracking-[0.2em] mb-4`}
+            className={`${green} text-[11px] font-bold tracking-[0.2em] mb-5`}
           >
             EXPLORER
           </div>
-          <div className="space-y-2 text-[10px]">
+          <div className="space-y-2.5 text-[11px]">
             <div className={`${green} flex items-center gap-1.5`}>
               <span className="opacity-70">▸</span>
               <span>src/engine</span>
@@ -186,9 +186,9 @@ function CyberGreenPreview() {
           </div>
         </aside>
 
-        <div className="relative bg-black text-[#00ff66] p-4 pr-28 text-left">
+        <div className="relative bg-black text-[#00ff66] p-5 md:p-6 pr-32 text-left">
           <span
-            className={`absolute top-3 right-4 border border-[#00ff66]/50 ${green} text-[9px] font-bold tracking-widest px-2 py-0.5 uppercase`}
+            className={`absolute top-4 right-5 border border-[#00ff66]/50 ${green} text-[10px] font-bold tracking-widest px-2.5 py-1 uppercase`}
           >
             PREVIEW: LIVE
           </span>
@@ -256,19 +256,19 @@ function ObsidianPreview() {
   const lineNum = "text-zinc-800";
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-sm overflow-hidden border border-zinc-800 shadow-[0_24px_80px_rgba(255,255,255,0.03)] text-left">
+    <div className="w-full rounded-sm overflow-hidden border border-zinc-800 shadow-[0_24px_80px_rgba(255,255,255,0.04)] text-left">
       <WindowChrome
         title="OBSIDIAN_CORE.MD — OBSIDIAN_OS"
         barClass="bg-zinc-950 text-zinc-600"
         borderClass="border-zinc-900"
       />
 
-      <div className="grid grid-cols-[168px_1fr] min-h-[340px] font-mono text-[11px] leading-[1.65]">
-        <aside className="bg-zinc-950 border-r border-zinc-900 p-4 text-left">
-          <div className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 mb-4">
+      <div className="grid grid-cols-[200px_1fr] min-h-[400px] md:min-h-[440px] font-mono text-xs md:text-sm leading-[1.65]">
+        <aside className="bg-zinc-950 border-r border-zinc-900 p-5 text-left">
+          <div className="text-[11px] font-bold tracking-[0.2em] text-zinc-500 mb-5">
             VAULT
           </div>
-          <div className="space-y-2 text-[10px]">
+          <div className="space-y-2.5 text-[11px]">
             <div className={`${white} flex items-center gap-1.5 font-semibold`}>
               <span className="opacity-50">▸</span>
               <span>projects</span>
@@ -282,8 +282,8 @@ function ObsidianPreview() {
           </div>
         </aside>
 
-        <div className="relative bg-black text-zinc-300 p-4 pr-28 text-left">
-          <span className="absolute top-3 right-4 border border-zinc-700 text-zinc-400 text-[9px] font-bold tracking-widest px-2 py-0.5 uppercase">
+        <div className="relative bg-black text-zinc-300 p-5 md:p-6 pr-32 text-left">
+          <span className="absolute top-4 right-5 border border-zinc-700 text-zinc-400 text-[10px] font-bold tracking-widest px-2.5 py-1 uppercase">
             PREVIEW: LIVE
           </span>
 

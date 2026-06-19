@@ -282,3 +282,22 @@ input[aria-label="Terminal input"]::placeholder {
     display: none !important;
   }
 }
+
+@keyframes landing-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.landing-ticker-track {
+  animation: landing-ticker 45s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-ticker-track {
+    animation: none;
+  }
+}

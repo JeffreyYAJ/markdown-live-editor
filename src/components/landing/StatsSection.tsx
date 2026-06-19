@@ -1,5 +1,6 @@
 import type { ThemeKey } from "../../pages/landing-themes";
 import { landingThemes } from "../../pages/landing-themes";
+import { LANDING_WIDE } from "../../pages/landing-layout";
 
 interface StatsSectionProps {
   theme: ThemeKey;
@@ -46,28 +47,28 @@ export default function StatsSection({ theme }: StatsSectionProps) {
   const s = themeStyles[theme];
 
   return (
-    <section className="max-w-5xl mx-auto px-6 py-16 md:py-24">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-y-14 gap-x-6 md:gap-x-4">
+    <section className={`${LANDING_WIDE} py-20 md:py-28`}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-y-16 md:gap-y-20 gap-x-8 md:gap-x-6">
         {t.stats.map((item) => (
           <div
             key={item.lab}
-            className="relative flex flex-col items-center justify-center min-h-[108px] text-center font-mono"
+            className="relative flex flex-col items-center justify-center min-h-[140px] md:min-h-[160px] text-center font-mono"
           >
             <span
               aria-hidden
-              className={`pointer-events-none absolute inset-0 flex items-center justify-center text-7xl md:text-[5.5rem] font-bold leading-none select-none ${s.glyph} ${s.glyphOpacity}`}
+              className={`pointer-events-none absolute inset-0 flex items-center justify-center text-8xl md:text-[7rem] lg:text-[8rem] font-bold leading-none select-none ${s.glyph} ${s.glyphOpacity}`}
             >
               {bgGlyph(item.sym)}
             </span>
 
             <div className="relative z-10 flex flex-col items-center">
               <span
-                className={`text-2xl md:text-[1.75rem] tracking-tight mb-2.5 ${s.value}`}
+                className={`text-3xl md:text-4xl lg:text-[2.75rem] tracking-tight mb-3 ${s.value}`}
               >
                 {item.val}
               </span>
               <span
-                className={`text-[9px] uppercase tracking-[0.22em] ${s.label}`}
+                className={`text-[10px] md:text-[11px] uppercase tracking-[0.22em] ${s.label}`}
               >
                 {item.lab}
               </span>
