@@ -7,6 +7,7 @@ import type {
 import { useNavigate } from "react-router-dom";
 import Topbar from "../components/Topbar";
 import Sidebar from "../components/Sidebar";
+import type { FileExplorerActions } from "../components/FileExplorer";
 import Editor from "../components/Editor";
 import Preview from "../components/Preview";
 import Terminal from "../components/Terminal";
@@ -54,6 +55,7 @@ function EditorAppInner() {
   const scrollingRef = useRef<"editor" | "preview" | null>(null);
   const scrollTimeoutRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileActionsRef = useRef<FileExplorerActions | null>(null);
 
   // Panel imperative refs
   const sidebarPanelRef = useRef<PanelImperativeHandle>(null);
@@ -294,7 +296,9 @@ function EditorAppInner() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onSearchSubmit={runSearch}
-        onNewDocument={() => void createDocument()}
+        onNewDocument={() => fileActionsRef.current?.openNewFile()}
+        onNewFolder={() => fileActionsRef.current?.openNewFolder()}
+        onDuplicateDocument={() => fileActionsRef.current?.duplicateActive()}
         onImport={triggerImport}
         onExportMarkdown={exportMarkdown}
         onExportHtml={exportHtml}
@@ -333,6 +337,7 @@ function EditorAppInner() {
                   onOutlineClick={scrollToHeading}
                   onFocusSearch={focusSearch}
                   onImport={triggerImport}
+                  fileActionsRef={fileActionsRef}
                 />
               </Panel>
 

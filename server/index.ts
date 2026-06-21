@@ -28,10 +28,13 @@ import {
 } from "./profile.js";
 import {
   appendHistorySnapshot,
+  createDirectory,
   createFile,
+  deleteDirectory,
   deleteFile,
   getHistory,
   listFiles,
+  listFolders,
   readFile,
   renameFile,
   uniquePath,
@@ -101,8 +104,11 @@ app.post("/api/auth/change-password", requireAuth, (req, res) =>
 app.get("/api/workspace", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const root = workspace(req);
-    const files = await listFiles(root);
-    res.json({ root, files });
+    const [files, folders] = await Promise.all([
+      listFiles(root),
+      listFolders(root),
+    ]);
+    res.json({ root, files, folders });
   } catch (err) {
     res.status(500).json({ error: message(err) });
   }
@@ -174,6 +180,30 @@ app.delete("/api/files", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const rel = requirePath(req.query.path);
     await deleteFile(workspace(req), rel);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: message(err) });
+  }
+});
+
+app.post("/api/folders", requireAuth, async (req: AuthedRequest, res) => {
+  try {
+    const rel = String(req.body?.path ?? "").trim();
+    if (!rel) {
+      res.status(400).json({ error: "path is required" });
+      return;
+    }
+    await createDirectory(workspace(req), rel);
+    res.status(201).json({ path: rel.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "") });
+  } catch (err) {
+    res.status(400).json({ error: message(err) });
+  }
+});
+
+app.delete("/api/folders", requireAuth, async (req: AuthedRequest, res) => {
+  try {
+    const rel = requirePath(req.query.path);
+    await deleteDirectory(workspace(req), rel);
     res.json({ ok: true });
   } catch (err) {
     res.status(400).json({ error: message(err) });

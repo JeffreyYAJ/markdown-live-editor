@@ -103,6 +103,52 @@ export async function listFiles(workspaceRoot: string): Promise<FileEntry[]> {
   return files;
 }
 
+async function walkDirectories(
+  dir: string,
+  workspaceRoot: string,
+  acc: Set<string>,
+): Promise<void> {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.name === ARCHITECT_DIR) continue;
+    if (!entry.isDirectory()) continue;
+
+    const abs = path.join(dir, entry.name);
+    const rel = path.relative(workspaceRoot, abs).replace(/\\/g, "/");
+    acc.add(rel);
+    await walkDirectories(abs, workspaceRoot, acc);
+  }
+}
+
+export async function listFolders(workspaceRoot: string): Promise<string[]> {
+  const dirs = new Set<string>();
+  await walkDirectories(workspaceRoot, workspaceRoot, dirs);
+  return [...dirs].sort((a, b) => a.localeCompare(b));
+}
+
+export async function createDirectory(
+  workspaceRoot: string,
+  relativePath: string,
+): Promise<void> {
+  const normalized = relativePath.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  if (!normalized) throw new Error("Folder path is required");
+  const abs = safePath(workspaceRoot, normalized);
+  await fs.mkdir(abs, { recursive: true });
+}
+
+export async function deleteDirectory(
+  workspaceRoot: string,
+  relativePath: string,
+): Promise<void> {
+  const normalized = relativePath.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  if (!normalized) throw new Error("Folder path is required");
+  const abs = safePath(workspaceRoot, normalized);
+  const entries = await fs.readdir(abs);
+  const visible = entries.filter((e) => e !== ARCHITECT_DIR);
+  if (visible.length > 0) throw new Error("Folder is not empty");
+  await fs.rmdir(abs);
+}
+
 export async function readFile(
   workspaceRoot: string,
   relativePath: string,

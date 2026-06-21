@@ -15,6 +15,7 @@ export interface DocumentSnapshot {
 
 export interface DocumentsContextValue {
   documents: MarkdownDocument[];
+  folders: string[];
   activeId: string;
   activeDoc: MarkdownDocument | undefined;
   lastSavedAt: number | null;
@@ -23,7 +24,10 @@ export interface DocumentsContextValue {
   workspaceRoot: string | null;
   error: string | null;
   createDocument: (name?: string, content?: string) => Promise<string>;
+  createFolder: (path: string) => Promise<string>;
   deleteDocument: (id: string) => Promise<void>;
+  deleteFolder: (path: string) => Promise<void>;
+  duplicateDocument: (id: string) => Promise<string>;
   renameDocument: (id: string, name: string) => Promise<void>;
   selectDocument: (id: string) => Promise<void>;
   updateActiveContent: (content: string) => void;

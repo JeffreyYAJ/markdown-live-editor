@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Search as SearchIcon,
   PanelRight,
@@ -19,6 +20,8 @@ interface TopbarProps {
   onSearchChange?: (q: string) => void;
   onSearchSubmit?: (backwards: boolean) => void;
   onNewDocument?: () => void;
+  onNewFolder?: () => void;
+  onDuplicateDocument?: () => void;
   onImport?: () => void;
   onExportMarkdown?: () => void;
   onExportHtml?: () => void;
@@ -40,6 +43,8 @@ export default function Topbar({
   onSearchChange,
   onSearchSubmit,
   onNewDocument,
+  onNewFolder,
+  onDuplicateDocument,
   onImport,
   onExportMarkdown,
   onExportHtml,
@@ -51,6 +56,7 @@ export default function Topbar({
   onChangePassword,
   onSignOut,
 }: TopbarProps) {
+  const { t } = useTranslation("editor");
   const [fileMenuOpen, setFileMenuOpen] = useState(false);
   const fileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -76,11 +82,13 @@ export default function Topbar({
   };
 
   const fileItems = [
-    { label: "New Document", action: onNewDocument },
-    { label: "Import .md…", action: onImport },
-    { label: "Export Markdown", action: onExportMarkdown },
-    { label: "Export HTML", action: onExportHtml },
-    { label: "Print / PDF", action: onPrint },
+    { label: t("files.newFile"), action: onNewDocument },
+    { label: t("files.newFolder"), action: onNewFolder },
+    { label: t("files.duplicate"), action: onDuplicateDocument },
+    { label: t("files.import"), action: onImport },
+    { label: t("files.exportMarkdown"), action: onExportMarkdown },
+    { label: t("files.exportHtml"), action: onExportHtml },
+    { label: t("files.print"), action: onPrint },
   ];
 
   return (
@@ -96,11 +104,11 @@ export default function Topbar({
             onClick={() => setFileMenuOpen((o) => !o)}
             className="relative cursor-pointer hover:text-main after:content-[''] after:absolute after:-top-0.5 after:-right-1.5 after:w-1 after:h-1 after:bg-red-500 after:rounded-full"
           >
-            File
+            {t("menu.file")}
           </button>
           {fileMenuOpen && (
             <ul
-              className="absolute top-full left-0 mt-1 w-44 py-1 rounded border border-surface-dim bg-sidebar shadow-xl z-50"
+              className="absolute top-full left-0 mt-1 w-48 py-1 rounded border border-surface-dim bg-sidebar shadow-xl z-50"
             >
               {fileItems.map(({ label, action }) => (
                 <li key={label}>
@@ -120,21 +128,21 @@ export default function Topbar({
           )}
         </div>
         <span className="cursor-pointer hover:text-main transition-colors">
-          Edit
+          {t("menu.edit")}
         </span>
         <span className="cursor-pointer hover:text-main transition-colors">
-          Selection
+          {t("menu.selection")}
         </span>
         <button
           type="button"
           onClick={cycleView}
           className="cursor-pointer hover:text-main transition-colors"
-          title="Cycle view: split / editor / preview"
+          title={t("menu.viewHint")}
         >
-          View
+          {t("menu.view")}
         </button>
         <span className="cursor-pointer hover:text-main transition-colors">
-          Go
+          {t("menu.go")}
         </span>
       </div>
 

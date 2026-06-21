@@ -9,7 +9,9 @@ import {
 import {
   checkHealth,
   createFile,
+  createFolder as apiCreateFolder,
   deleteFile,
+  deleteFolder as apiDeleteFolder,
   fetchFile,
   fetchHistory,
   fetchWorkspace,
@@ -18,6 +20,7 @@ import {
   saveFile,
   FilesApiError,
 } from "../api/files";
+import { suggestDuplicatePath } from "../utils/file-tree";
 import {
   DocumentsContext,
   type DocumentSnapshot,
@@ -56,6 +59,7 @@ function entryToDoc(
 
 export function DocumentsProvider({ children }: { children: ReactNode }) {
   const [documents, setDocuments] = useState<MarkdownDocument[]>([]);
+  const [folders, setFolders] = useState<string[]>([]);
   const [activeId, setActiveId] = useState("");
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +118,7 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
       const ws = await fetchWorkspace();
       setFsConnected(true);
       setWorkspaceRoot(ws.root);
+      setFolders(ws.folders ?? []);
 
       const docs = ws.files.map((f) =>
         entryToDoc(
@@ -170,6 +175,21 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const createFolder = useCallback(async (folderPath: string) => {
+    const normalized = folderPath
+      .trim()
+      .replace(/\\/g, "/")
+      .replace(/^\/+|\/+$/g, "");
+    if (!normalized) throw new Error("Folder path is required");
+    const created = await apiCreateFolder(normalized);
+    setFolders((prev) =>
+      [...new Set([...prev, created.path])].sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    );
+    return created.path;
+  }, []);
+
   const deleteDocument = useCallback(
     async (id: string) => {
       if (documents.length <= 1) return;
@@ -186,6 +206,43 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
       }
     },
     [documents, activeId, loadFileContent],
+  );
+
+  const deleteFolder = useCallback(async (folderPath: string) => {
+    const normalized = folderPath
+      .trim()
+      .replace(/\\/g, "/")
+      .replace(/^\/+|\/+$/g, "");
+    if (!normalized) return;
+    await apiDeleteFolder(normalized);
+    setFolders((prev) => prev.filter((f) => f !== normalized));
+  }, []);
+
+  const duplicateDocument = useCallback(
+    async (id: string) => {
+      const source = documents.find((d) => d.id === id);
+      if (!source) throw new Error("Document not found");
+
+      let content = contentCache.current.get(id);
+      if (content == null) {
+        const file = await fetchFile(id);
+        content = file.content;
+        contentCache.current.set(id, content);
+      }
+
+      const newPath = suggestDuplicatePath(
+        id,
+        documents.map((d) => d.id),
+      );
+      const created = await createFile(newPath, content);
+      contentCache.current.set(created.path, content);
+      const doc = entryToDoc(created.path, created.updatedAt, content);
+      setDocuments((prev) => [...prev, doc]);
+      setActiveId(created.path);
+      localStorage.setItem(ACTIVE_FILE_KEY, created.path);
+      return created.path;
+    },
+    [documents],
   );
 
   const renameDocument = useCallback(
@@ -300,6 +357,7 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       documents,
+      folders,
       activeId,
       activeDoc,
       lastSavedAt,
@@ -308,7 +366,10 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
       workspaceRoot,
       error,
       createDocument,
+      createFolder,
       deleteDocument,
+      deleteFolder,
+      duplicateDocument,
       renameDocument,
       selectDocument,
       updateActiveContent,
@@ -319,6 +380,7 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
     }),
     [
       documents,
+      folders,
       activeId,
       activeDoc,
       lastSavedAt,
@@ -327,7 +389,10 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
       workspaceRoot,
       error,
       createDocument,
+      createFolder,
       deleteDocument,
+      deleteFolder,
+      duplicateDocument,
       renameDocument,
       selectDocument,
       updateActiveContent,

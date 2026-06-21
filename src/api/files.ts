@@ -7,6 +7,7 @@ export interface FileEntry {
 export interface WorkspaceInfo {
   root: string;
   files: FileEntry[];
+  folders: string[];
 }
 
 export interface FileContent {
@@ -91,6 +92,21 @@ export async function renameFile(
   return request(`/api/files?path=${encodeURIComponent(path)}`, {
     method: "PATCH",
     body: JSON.stringify({ newPath }),
+  });
+}
+
+export async function createFolder(
+  path: string,
+): Promise<{ path: string }> {
+  return request("/api/folders", {
+    method: "POST",
+    body: JSON.stringify({ path }),
+  });
+}
+
+export async function deleteFolder(path: string): Promise<void> {
+  await request(`/api/folders?path=${encodeURIComponent(path)}`, {
+    method: "DELETE",
   });
 }
 
