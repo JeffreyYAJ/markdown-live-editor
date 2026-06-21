@@ -1,18 +1,17 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import HeroPreview from "../components/landing/HeroPreview";
 import LandingAmbient from "../components/landing/LandingAmbient";
 import LandingTicker from "../components/landing/LandingTicker";
 import RenderingCompare from "../components/landing/RenderingCompare";
 import StatsSection from "../components/landing/StatsSection";
-import {
-  landingThemes,
-  type LandingTheme,
-  type ThemeKey,
-} from "./landing-themes";
+import type { LandingTheme, ThemeKey } from "./landing-themes";
 import { LANDING_CONTAINER, LANDING_WIDE } from "./landing-layout";
 import { useAppTheme } from "../hooks/useAppTheme";
+import { useLandingTheme } from "../hooks/useLandingThemes";
 import ThemeSwitcher from "../components/auth/ThemeSwitcher";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import MarketingHeader from "../components/marketing/MarketingHeader";
 
 function FeatureCard({
@@ -83,21 +82,24 @@ function FeatureCard({
 
 export default function Landing() {
   const { user } = useAuth();
+  const { t: tc } = useTranslation("common");
   const { theme: currentTheme, setTheme: setCurrentTheme } = useAppTheme();
-  const t = landingThemes[currentTheme];
+  const t = useLandingTheme(currentTheme);
 
   const primaryTo = user ? "/app" : "/signup";
-  const primaryLabel = user ? "OPEN WORKSPACE" : "INITIALIZE DOWNLOAD";
+  const primaryLabel = user
+    ? tc("cta.openWorkspace")
+    : tc("cta.initializeDownload");
   const headerTo =
     t.headerCta === "get-started" ? (user ? "/app" : "/signup") : user ? "/app" : "/login";
   const headerLabel =
     t.headerCta === "get-started"
       ? user
-        ? "APP"
-        : "GET STARTED"
+        ? tc("cta.app")
+        : tc("cta.getStarted")
       : user
-        ? "APP"
-        : "LOG IN";
+        ? tc("cta.app")
+        : tc("cta.login");
 
   const statusBarClass =
     currentTheme === "light-blue"
@@ -117,7 +119,9 @@ export default function Landing() {
         onThemeChange={setCurrentTheme}
         t={t}
         statusBarClass={statusBarClass}
-        statusRight={t.featuresVersion ?? "BUILD: 1.6.2"}
+        statusLeft={tc("status.online")}
+        statusCenter={tc("status.latency")}
+        statusRight={t.featuresVersion ?? tc("status.build")}
         headerTo={headerTo}
         headerLabel={headerLabel}
         showThemeSwitcher={false}
@@ -139,8 +143,8 @@ export default function Landing() {
                 : "text-6xl md:text-7xl lg:text-8xl xl:text-9xl flex flex-wrap justify-center gap-x-5"
             }`}
           >
-            <span className={t.heroTitle1}>NEURAL</span>
-            <span className={t.heroTitle2}>EDITOR</span>
+            <span className={t.heroTitle1}>{tc("hero.title1")}</span>
+            <span className={t.heroTitle2}>{tc("hero.title2")}</span>
           </h1>
 
           <p
@@ -260,12 +264,14 @@ export default function Landing() {
         </div>
       </footer>
 
-      {/* Theme switcher */}
-      <ThemeSwitcher
-        theme={currentTheme}
-        onChange={setCurrentTheme}
-        className="fixed bottom-5 right-5 z-50 shadow-xl"
-      />
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col sm:flex-row items-end gap-3">
+        <LanguageSwitcher className="bg-zinc-950/90 backdrop-blur-sm border border-zinc-800 rounded-full px-2 py-1.5 shadow-xl" />
+        <ThemeSwitcher
+          theme={currentTheme}
+          onChange={setCurrentTheme}
+          className="shadow-xl"
+        />
+      </div>
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import LandingAmbient from "../landing/LandingAmbient";
 import ThemeSwitcher from "./ThemeSwitcher";
-import { authThemes } from "../../pages/auth-themes";
+import LanguageSwitcher from "../LanguageSwitcher";
+import { useAuthTheme } from "../../hooks/useAuthThemes";
 import type { ThemeKey } from "../../pages/landing-themes";
 
 interface AuthPageLayoutProps {
@@ -19,7 +21,9 @@ export default function AuthPageLayout({
   children,
   footer,
 }: AuthPageLayoutProps) {
-  const t = authThemes[theme];
+  const { t: tc } = useTranslation("common");
+  const { t: ta } = useTranslation("auth");
+  const t = useAuthTheme(theme);
   const title = mode === "login" ? t.loginTitle : t.signupTitle;
   const subtitle = mode === "login" ? t.loginSubtitle : t.signupSubtitle;
 
@@ -37,17 +41,22 @@ export default function AuthPageLayout({
           >
             {t.brand}
           </Link>
-          <ThemeSwitcher theme={theme} onChange={onThemeChange} />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <LanguageSwitcher compact />
+            <ThemeSwitcher theme={theme} onChange={onThemeChange} />
+          </div>
         </div>
         <div
           className={`border-t font-mono text-[10px] md:text-[11px] py-2 px-6 md:px-10 lg:px-12 flex justify-between gap-4 ${t.statusBarClass}`}
         >
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            AUTH.STATUS: READY
+            {tc("status.authReady")}
           </span>
-          <span className="hidden sm:inline">SESSION: TLS 1.3</span>
-          <span className="hidden md:inline">GATE: {mode.toUpperCase()}</span>
+          <span className="hidden sm:inline">{tc("status.tls")}</span>
+          <span className="hidden md:inline">
+            {mode === "login" ? tc("authGate.login") : tc("authGate.signup")}
+          </span>
         </div>
       </header>
 
@@ -61,7 +70,7 @@ export default function AuthPageLayout({
             <span
               className={`inline-block self-start font-mono text-[10px] uppercase px-4 py-1.5 border mb-6 ${t.badgeClass}`}
             >
-              {mode === "login" ? "ACCESS REQUEST" : "NEW IDENTITY"}
+              {mode === "login" ? ta("badges.accessRequest") : ta("badges.newIdentity")}
             </span>
             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight mb-2">
               {title}
@@ -79,7 +88,7 @@ export default function AuthPageLayout({
 }
 
 function AuthPanel({ theme }: { theme: ThemeKey }) {
-  const t = authThemes[theme];
+  const t = useAuthTheme(theme);
 
   return (
     <div

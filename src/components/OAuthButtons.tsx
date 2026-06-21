@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchOAuthProviders } from "../api/auth";
 import type { AuthTheme } from "../pages/auth-themes";
 
@@ -7,6 +8,7 @@ interface OAuthButtonsProps {
 }
 
 export default function OAuthButtons({ theme: t }: OAuthButtonsProps) {
+  const { t: ta } = useTranslation("auth");
   const [providers, setProviders] = useState({ google: false, github: false });
   const [loaded, setLoaded] = useState(false);
 
@@ -26,7 +28,7 @@ export default function OAuthButtons({ theme: t }: OAuthButtonsProps) {
         <span
           className={`text-[10px] ${t.subtext} font-mono uppercase tracking-[0.2em]`}
         >
-          or continue with
+          {ta("oauth.orContinue")}
         </span>
         <div className={`h-px flex-1 ${t.divider}`} />
       </div>
@@ -36,7 +38,7 @@ export default function OAuthButtons({ theme: t }: OAuthButtonsProps) {
             href="/api/auth/google"
             className={`w-full py-3 rounded-sm border font-mono text-sm text-center transition-colors ${t.btnOAuth}`}
           >
-            Google
+            {ta("oauth.google")}
           </a>
         )}
         {providers.github && (
@@ -44,7 +46,7 @@ export default function OAuthButtons({ theme: t }: OAuthButtonsProps) {
             href="/api/auth/github"
             className={`w-full py-3 rounded-sm border font-mono text-sm text-center transition-colors ${t.btnOAuth}`}
           >
-            GitHub
+            {ta("oauth.github")}
           </a>
         )}
       </div>

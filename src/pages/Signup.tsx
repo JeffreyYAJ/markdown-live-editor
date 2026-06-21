@@ -1,18 +1,20 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { AuthApiError } from "../api/auth";
 import OAuthButtons from "../components/OAuthButtons";
 import AuthPageLayout from "../components/auth/AuthPageLayout";
 import AuthField from "../components/auth/AuthField";
-import { authThemes } from "./auth-themes";
+import { useAuthTheme } from "../hooks/useAuthThemes";
 import { useAppTheme } from "../hooks/useAppTheme";
 
 export default function Signup() {
   const { signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { t: ta } = useTranslation("auth");
   const { theme, setTheme } = useAppTheme();
-  const t = authThemes[theme];
+  const t = useAuthTheme(theme);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -33,7 +35,7 @@ export default function Signup() {
       navigate("/app", { replace: true });
     } catch (err) {
       setError(
-        err instanceof AuthApiError ? err.message : "Sign up failed",
+        err instanceof AuthApiError ? err.message : ta("form.signUpFailed"),
       );
     } finally {
       setSubmitting(false);
@@ -56,9 +58,9 @@ export default function Signup() {
       mode="signup"
       footer={
         <p className={`text-center text-sm ${t.subtext} font-mono`}>
-          Already have an account?{" "}
+          {ta("links.hasAccount")}{" "}
           <Link to="/login" className={t.linkClass}>
-            Sign in
+            {ta("links.signIn")}
           </Link>
         </p>
       }
@@ -73,16 +75,16 @@ export default function Signup() {
         )}
         <AuthField
           theme={t}
-          label="Display name"
+          label={ta("form.displayName")}
           type="text"
           value={name}
           onChange={setName}
           autoComplete="name"
-          placeholder="Optional"
+          placeholder={ta("form.optional")}
         />
         <AuthField
           theme={t}
-          label="Email"
+          label={ta("form.email")}
           type="email"
           value={email}
           onChange={setEmail}
@@ -92,14 +94,14 @@ export default function Signup() {
         <div>
           <AuthField
             theme={t}
-            label="Password"
+            label={ta("form.password")}
             type="password"
             value={password}
             onChange={setPassword}
             autoComplete="new-password"
             required
             minLength={8}
-            hint="Minimum 8 characters"
+            hint={ta("form.passwordHint")}
           />
           {passwordStrength && (
             <div className="mt-3 flex items-center gap-2">
@@ -122,7 +124,7 @@ export default function Signup() {
                 ))}
               </div>
               <span className={`font-mono text-[10px] uppercase ${t.subtext}`}>
-                {passwordStrength}
+                {ta(`passwordStrength.${passwordStrength}`)}
               </span>
             </div>
           )}
@@ -132,7 +134,7 @@ export default function Signup() {
           disabled={submitting}
           className={`w-full py-3.5 rounded-sm font-mono font-bold uppercase tracking-widest text-xs md:text-sm transition-colors ${t.btnPrimary}`}
         >
-          {submitting ? "Creating…" : "Create account"}
+          {submitting ? ta("form.creating") : ta("form.createAccount")}
         </button>
       </form>
       <div className="mt-6">

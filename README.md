@@ -11,6 +11,7 @@ A real-time markdown editor with live preview, built with React, TypeScript, and
 - **LaTeX Support**: Inline (`$E=mc^2$`) and block (`$$...$$`) math via `remark-math` + `rehype-katex`
 - **Syntax Highlighting**: Markdown editing powered by `react-simple-code-editor` + PrismJS
 - **Themes**: `light-blue`, `cyber-green`, and `obsidian-silver` — shared across landing, docs, auth, and editor (persisted in `localStorage`)
+- **i18n**: English and French (`react-i18next`) — language switcher on marketing/auth pages; preference stored in `architect-locale`
 - **Built-in Terminal**: Toggle with `Ctrl+\``; supports `help`, `stats`, `theme`, `export md|html`, and more
 - **Auto-save**: Documents are saved to disk in your local workspace folder
 - **Local file server**: A Node.js API reads/writes markdown files on your machine (no cloud VPS needed)

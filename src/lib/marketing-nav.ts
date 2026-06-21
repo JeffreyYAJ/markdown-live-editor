@@ -1,22 +1,24 @@
-export function navItemHref(item: string): string {
-  switch (item.toUpperCase()) {
-    case "HOME":
+import type { NavKey } from "../pages/landing-theme-styles";
+
+export function navItemHref(navKey: NavKey): string {
+  switch (navKey) {
+    case "home":
       return "/";
-    case "DOCS":
+    case "docs":
       return "/docs";
-    case "FEATURES":
+    case "features":
       return "/#features";
-    case "PRICING":
+    case "pricing":
       return "/#features";
-    case "COMMUNITY":
+    case "community":
       return "/#features";
-    case "GITHUB":
+    case "github":
       return "https://github.com/kyler004/markdown-live-editor";
     default:
       return "/";
   }
 }
 
-export function isExternalNav(item: string): boolean {
-  return item.toUpperCase() === "GITHUB";
+export function isExternalNav(navKey: NavKey): boolean {
+  return navKey === "github";
 }

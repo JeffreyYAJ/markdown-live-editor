@@ -1,34 +1,5 @@
 import type { ThemeKey } from "../../pages/landing-themes";
-
-const items: Record<ThemeKey, string[]> = {
-  "light-blue": [
-    "PRECISION RENDERING",
-    "CLOUD NATIVE",
-    "AES-256",
-    "0.12MS LATENCY",
-    "LIVE PREVIEW",
-    "CANVAS ENGINE",
-    "DIGITAL ARCHITECTS",
-  ],
-  "cyber-green": [
-    "KERNEL LEVEL",
-    "DIRECT-TO-METAL",
-    "256-BIT STREAM",
-    "NO LATENCY",
-    "CRT AESTHETICS",
-    "NEURAL CONSOLE",
-    "SYSTEM LIVE",
-  ],
-  "obsidian-silver": [
-    "MONOCHROME PRECISION",
-    "LOCAL FIRST",
-    "VAULT ENCRYPTION",
-    "NEURAL GRAPH",
-    "0.05MS INPUT",
-    "PLUGIN ECOSYSTEM",
-    "OBSIDIAN GRADE",
-  ],
-};
+import { useTranslation } from "react-i18next";
 
 const barClass: Record<ThemeKey, string> = {
   "light-blue": "border-slate-200 bg-slate-50/80 text-slate-400",
@@ -37,8 +8,10 @@ const barClass: Record<ThemeKey, string> = {
 };
 
 export default function LandingTicker({ theme }: { theme: ThemeKey }) {
-  const list = items[theme];
-  const track = [...list, ...list];
+  const { t } = useTranslation("landing");
+  const list = t(`ticker.${theme}`, { returnObjects: true }) as string[];
+  const items = Array.isArray(list) ? list : [];
+  const track = [...items, ...items];
 
   return (
     <div

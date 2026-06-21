@@ -1,15 +1,17 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { AuthApiError } from "../api/auth";
 import OAuthButtons from "../components/OAuthButtons";
 import AuthPageLayout from "../components/auth/AuthPageLayout";
 import AuthField from "../components/auth/AuthField";
-import { authThemes } from "./auth-themes";
+import { useAuthTheme } from "../hooks/useAuthThemes";
 import { useAppTheme } from "../hooks/useAppTheme";
 
 export default function Login() {
   const { signIn, user } = useAuth();
+  const { t: ta } = useTranslation("auth");
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -18,7 +20,7 @@ export default function Login() {
     ?.pathname ?? "/app";
 
   const { theme, setTheme } = useAppTheme();
-  const t = authThemes[theme];
+  const t = useAuthTheme(theme);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,7 +40,7 @@ export default function Login() {
       navigate(from, { replace: true });
     } catch (err) {
       setError(
-        err instanceof AuthApiError ? err.message : "Sign in failed",
+        err instanceof AuthApiError ? err.message : ta("form.signInFailed"),
       );
     } finally {
       setSubmitting(false);
@@ -52,9 +54,9 @@ export default function Login() {
       mode="login"
       footer={
         <p className={`text-center text-sm ${t.subtext} font-mono`}>
-          No account?{" "}
+          {ta("links.noAccount")}{" "}
           <Link to="/signup" className={t.linkClass}>
-            Create one
+            {ta("links.createOne")}
           </Link>
         </p>
       }
@@ -69,7 +71,7 @@ export default function Login() {
         )}
         <AuthField
           theme={t}
-          label="Email"
+          label={ta("form.email")}
           type="email"
           value={email}
           onChange={setEmail}
@@ -78,7 +80,7 @@ export default function Login() {
         />
         <AuthField
           theme={t}
-          label="Password"
+          label={ta("form.password")}
           type="password"
           value={password}
           onChange={setPassword}
@@ -90,7 +92,7 @@ export default function Login() {
           disabled={submitting}
           className={`w-full py-3.5 rounded-sm font-mono font-bold uppercase tracking-widest text-xs md:text-sm transition-colors ${t.btnPrimary}`}
         >
-          {submitting ? "Signing in…" : "Sign in"}
+          {submitting ? ta("form.signingIn") : ta("form.signIn")}
         </button>
       </form>
       <div className="mt-6">

@@ -3,8 +3,10 @@ import {
   useRef,
   useEffect,
   useCallback,
+  useMemo,
   type KeyboardEvent,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { X, TerminalSquare } from "lucide-react";
 import type { Theme } from "../context/ThemeContext";
 import { resolveThemeArg } from "../lib/theme-storage";
@@ -29,10 +31,18 @@ const mkLine = (
   text: string,
 ): TerminalLine => ({ id: lineIdCounter++, type, text });
 
-const WELCOME: TerminalLine[] = [
-  mkLine("info", `ARCHITECT_OS terminal — v${APP_VERSION}`),
-  mkLine("info", `Type \`help\` to see available commands.`),
-];
+const WELCOME_STATIC: TerminalLine[] = [];
+
+function useWelcomeLines(): TerminalLine[] {
+  const { t } = useTranslation("editor");
+  return useMemo(
+    () => [
+      mkLine("info", t("terminal.welcome", { version: APP_VERSION })),
+      mkLine("info", t("terminal.typeHelp")),
+    ],
+    [t],
+  );
+}
 
 function countStats(md: string) {
   const lines = md.split("\n").length;
@@ -42,7 +52,9 @@ function countStats(md: string) {
 }
 
 export default function Terminal({ markdown, onClose, onThemeChange }: TerminalProps) {
-  const [history, setHistory] = useState<TerminalLine[]>(WELCOME);
+  const { t } = useTranslation("editor");
+  const welcome = useWelcomeLines();
+  const [history, setHistory] = useState<TerminalLine[]>(WELCOME_STATIC);
   const [input, setInput] = useState("");
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
   const [histIdx, setHistIdx] = useState(-1);
@@ -50,6 +62,11 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
 
   const outputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Seed welcome lines when language loads
+  useEffect(() => {
+    setHistory(welcome);
+  }, [welcome]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -80,21 +97,21 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
       switch (cmd.toLowerCase()) {
         case "help":
           pushLines(
-            mkLine("info", "Available commands:"),
-            mkLine("output", "  help              — show this help"),
-            mkLine("output", "  clear             — clear terminal output"),
-            mkLine("output", "  whoami            — display editor identity"),
-            mkLine("output", "  stats             — word/char/line count"),
-            mkLine("output", "  theme <name>      — light-blue | cyber-green | obsidian-silver"),
-            mkLine("output", "  echo <text>       — print text to terminal"),
-            mkLine("output", "  date              — print current date & time"),
-            mkLine("output", "  version           — display app version"),
-            mkLine("output", "  export <format>   — export document: md | html"),
+            mkLine("info", t("terminal.helpTitle")),
+            mkLine("output", t("terminal.helpHelp")),
+            mkLine("output", t("terminal.helpClear")),
+            mkLine("output", t("terminal.helpWhoami")),
+            mkLine("output", t("terminal.helpStats")),
+            mkLine("output", t("terminal.helpTheme")),
+            mkLine("output", t("terminal.helpEcho")),
+            mkLine("output", t("terminal.helpDate")),
+            mkLine("output", t("terminal.helpVersion")),
+            mkLine("output", t("terminal.helpExport")),
           );
           break;
 
         case "clear":
-          setHistory(WELCOME);
+          setHistory(welcome);
           break;
 
         case "whoami":
@@ -121,15 +138,14 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
           const resolved = args[0] ? resolveThemeArg(args[0]) : null;
           if (!resolved) {
             pushLines(
-              mkLine(
-                "error",
-                "  Usage: theme <light-blue|cyber-green|obsidian-silver>",
-              ),
-              mkLine("info", "  Aliases: light, cyber, obsidian"),
+              mkLine("error", t("terminal.themeUsage")),
+              mkLine("info", t("terminal.themeAliases")),
             );
           } else {
             onThemeChange(resolved);
-            pushLines(mkLine("success", `  ✓ Theme switched to '${resolved}'`));
+            pushLines(
+              mkLine("success", t("terminal.themeSwitched", { theme: resolved })),
+            );
           }
           break;
         }
@@ -156,7 +172,7 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
         case "export": {
           const fmt = args[0]?.toLowerCase();
           if (fmt === "md") {
-            pushLines(mkLine("info", "  Preparing Markdown export..."));
+            pushLines(mkLine("info", t("terminal.exportMdPreparing")));
             setTimeout(() => {
               const blob = new Blob([markdown], { type: "text/markdown" });
               const url = URL.createObjectURL(blob);
@@ -165,10 +181,10 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
               a.download = "document.md";
               a.click();
               URL.revokeObjectURL(url);
-              setHistory((h) => [...h, mkLine("success", "  ✓ Saved as document.md")]);
+              setHistory((h) => [...h, mkLine("success", t("terminal.exportMdDone"))]);
             }, 300);
           } else if (fmt === "html") {
-            pushLines(mkLine("info", "  Preparing HTML export..."));
+            pushLines(mkLine("info", t("terminal.exportHtmlPreparing")));
             setTimeout(() => {
               const container = document.querySelector(".preview-content");
               const body = container?.innerHTML ?? markdown;
@@ -190,22 +206,22 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
               a.download = "document.html";
               a.click();
               URL.revokeObjectURL(url);
-              setHistory((h) => [...h, mkLine("success", "  ✓ Saved as document.html")]);
+              setHistory((h) => [...h, mkLine("success", t("terminal.exportHtmlDone"))]);
             }, 300);
           } else {
-            pushLines(mkLine("error", "  Usage: export <md|html>"));
+            pushLines(mkLine("error", t("terminal.exportUsage")));
           }
           break;
         }
 
         default:
           pushLines(
-            mkLine("error", `  command not found: '${cmd}'`),
-            mkLine("info", "  Type `help` to see available commands."),
+            mkLine("error", t("terminal.commandNotFound", { cmd })),
+            mkLine("info", t("terminal.typeHelpHint")),
           );
       }
     },
-    [markdown, onThemeChange, pushLines],
+    [markdown, onThemeChange, pushLines, t, welcome],
   );
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -261,7 +277,7 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
                 border: "1px solid var(--color-surface-dim)",
               }}
             >
-              BASH
+              {t("terminal.bashTab")}
             </div>
           </div>
         </div>
@@ -275,8 +291,8 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
             style={{ color: "var(--color-inactive)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#f87171")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-inactive)")}
-            title="Close"
-            aria-label="Close terminal"
+            title={t("terminal.close")}
+            aria-label={t("terminal.close")}
           >
             <X size={13} />
           </button>
@@ -318,7 +334,7 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
               autoComplete="off"
               autoCorrect="off"
               aria-label="Terminal input"
-              placeholder="type a command…"
+              placeholder={t("terminal.inputPlaceholder")}
               style={{ caretColor: "var(--color-neon)" }}
             />
           </div>

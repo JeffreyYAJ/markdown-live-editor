@@ -3,6 +3,7 @@ import type { LandingTheme, ThemeKey } from "../../pages/landing-themes";
 import { LANDING_WIDE } from "../../pages/landing-layout";
 import { isExternalNav, navItemHref } from "../../lib/marketing-nav";
 import ThemeSwitcher from "../auth/ThemeSwitcher";
+import LanguageSwitcher from "../LanguageSwitcher";
 
 interface MarketingHeaderProps {
   theme: ThemeKey;
@@ -29,6 +30,11 @@ export default function MarketingHeader({
   headerLabel,
   showThemeSwitcher = true,
 }: MarketingHeaderProps) {
+  const navItems = t.navKeys.map((key, i) => ({
+    key,
+    label: t.nav[i] ?? key,
+  }));
+
   return (
     <header className={`border-b ${t.border} relative z-10`}>
       <div
@@ -43,38 +49,39 @@ export default function MarketingHeader({
         <nav
           className={`hidden md:flex gap-10 text-[11px] tracking-[0.2em] uppercase ${t.navClass}`}
         >
-          {t.nav.map((item) => {
-            const href = navItemHref(item);
-            const external = isExternalNav(item);
+          {navItems.map(({ key, label }) => {
+            const href = navItemHref(key);
+            const external = isExternalNav(key);
             const className = "hover:opacity-80 transition-opacity";
             if (external) {
               return (
                 <a
-                  key={item}
+                  key={key}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={className}
                 >
-                  {item}
+                  {label}
                 </a>
               );
             }
             if (href.startsWith("/#")) {
               return (
-                <a key={item} href={href} className={className}>
-                  {item}
+                <a key={key} href={href} className={className}>
+                  {label}
                 </a>
               );
             }
             return (
-              <Link key={item} to={href} className={className}>
-                {item}
+              <Link key={key} to={href} className={className}>
+                {label}
               </Link>
             );
           })}
         </nav>
-        <div className="flex justify-end items-center gap-3">
+        <div className="flex justify-end items-center gap-2 sm:gap-3">
+          <LanguageSwitcher compact className="hidden md:flex" />
           {showThemeSwitcher && (
             <ThemeSwitcher
               theme={theme}

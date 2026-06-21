@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Eye, Code2 } from "lucide-react";
 import type { ThemeKey } from "../../pages/landing-themes";
-import { landingThemes } from "../../pages/landing-themes";
+import { useLandingTheme } from "../../hooks/useLandingThemes";
+import { useTranslation } from "react-i18next";
 import { LANDING_WIDE } from "../../pages/landing-layout";
 
 interface RenderingCompareProps {
@@ -318,7 +319,8 @@ function ObsidianCompare() {
 }
 
 export default function RenderingCompare({ theme }: RenderingCompareProps) {
-  const t = landingThemes[theme];
+  const t = useLandingTheme(theme);
+  const { t: tc } = useTranslation("common");
 
   return (
     <section className={`border-t border-b ${t.compSectionBg} py-20 md:py-28`}>
@@ -335,7 +337,7 @@ export default function RenderingCompare({ theme }: RenderingCompareProps) {
         <p
           className={`${t.accentText} font-mono text-[10px] md:text-[11px] uppercase tracking-[0.25em]`}
         >
-          EXPERIENCE ZERO-LATENCY VISUAL FEEDBACK
+          {tc("compare.subtitle")}
         </p>
       </div>
 

@@ -1,5 +1,5 @@
 import type { ThemeKey } from "../../pages/landing-themes";
-import { landingThemes } from "../../pages/landing-themes";
+import { useLandingTheme } from "../../hooks/useLandingThemes";
 import { LANDING_WIDE } from "../../pages/landing-layout";
 
 interface StatsSectionProps {
@@ -43,7 +43,7 @@ const themeStyles: Record<
 };
 
 export default function StatsSection({ theme }: StatsSectionProps) {
-  const t = landingThemes[theme];
+  const t = useLandingTheme(theme);
   const s = themeStyles[theme];
 
   return (

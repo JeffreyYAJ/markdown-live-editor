@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import LandingAmbient from "../components/landing/LandingAmbient";
 import MarketingHeader from "../components/marketing/MarketingHeader";
 import ThemeSwitcher from "../components/auth/ThemeSwitcher";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAppTheme } from "../hooks/useAppTheme";
-import { landingThemes } from "./landing-themes";
+import { useLandingTheme } from "../hooks/useLandingThemes";
 import { LANDING_WIDE } from "./landing-layout";
-import { docSections, type DocBlock } from "./docs-content";
+import { useDocSections, type DocBlock } from "../hooks/useDocSections";
 
 function DocBlockView({
   block,
@@ -93,12 +95,14 @@ function DocBlockView({
 
 export default function Docs() {
   const { user } = useAuth();
+  const { t: tc } = useTranslation("common");
   const { theme, setTheme } = useAppTheme();
-  const t = landingThemes[theme];
-  const [activeId, setActiveId] = useState(docSections[0].id);
+  const t = useLandingTheme(theme);
+  const docSections = useDocSections();
+  const [activeId, setActiveId] = useState(docSections[0]?.id ?? "getting-started");
 
   const headerTo = user ? "/app" : "/signup";
-  const headerLabel = user ? "APP" : "GET STARTED";
+  const headerLabel = user ? tc("cta.app") : tc("cta.getStarted");
 
   const statusBarClass =
     theme === "light-blue"
@@ -140,7 +144,7 @@ export default function Docs() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [docSections]);
 
   return (
     <div
@@ -153,9 +157,9 @@ export default function Docs() {
         onThemeChange={setTheme}
         t={t}
         statusBarClass={statusBarClass}
-        statusLeft="DOCS.STATUS: LIVE"
-        statusCenter="BUILD: 1.6.2"
-        statusRight="INDEX: 8 SECTIONS"
+        statusLeft={tc("status.docsLive")}
+        statusCenter={tc("status.build")}
+        statusRight={tc("docsPage.sectionsCount")}
         headerTo={headerTo}
         headerLabel={headerLabel}
         showThemeSwitcher={false}
@@ -166,14 +170,13 @@ export default function Docs() {
           <span
             className={`inline-block font-mono text-[10px] uppercase px-4 py-1.5 border mb-6 ${t.badgeClass}`}
           >
-            DOCUMENTATION // v1.6
+            {tc("docsPage.badge")}
           </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter mb-4">
-            System Docs
+            {tc("docsPage.title")}
           </h1>
           <p className={`${t.subtext} font-mono text-sm max-w-2xl leading-relaxed`}>
-            Reference for markdown syntax, themes, terminal commands, auth, and
-            deployment. Same three themes as the landing page — switch anytime.
+            {tc("docsPage.subtitle")}
           </p>
         </div>
 
@@ -182,7 +185,7 @@ export default function Docs() {
             <p
               className={`font-mono text-[10px] uppercase tracking-[0.2em] mb-4 ${t.subtext}`}
             >
-              Contents
+              {tc("docsPage.contents")}
             </p>
             <ul className="space-y-1">
               {docSections.map((section) => (
@@ -205,7 +208,7 @@ export default function Docs() {
                 to={user ? "/app" : "/signup"}
                 className={`font-mono text-xs uppercase tracking-widest ${t.accentText} hover:opacity-80`}
               >
-                {user ? "→ Open workspace" : "→ Get started"}
+                {user ? tc("docsPage.openWorkspace") : tc("docsPage.getStarted")}
               </Link>
             </div>
           </nav>
@@ -238,11 +241,10 @@ export default function Docs() {
         </div>
       </main>
 
-      <ThemeSwitcher
-        theme={theme}
-        onChange={setTheme}
-        className="fixed bottom-5 right-5 z-50 shadow-xl"
-      />
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col sm:flex-row items-end gap-3">
+        <LanguageSwitcher className="bg-zinc-950/90 backdrop-blur-sm border border-zinc-800 rounded-full px-2 py-1.5 shadow-xl" />
+        <ThemeSwitcher theme={theme} onChange={setTheme} className="shadow-xl" />
+      </div>
     </div>
   );
 }
