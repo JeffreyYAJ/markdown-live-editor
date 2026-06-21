@@ -7,6 +7,7 @@ import {
 } from "react";
 import { X, TerminalSquare } from "lucide-react";
 import type { Theme } from "../context/ThemeContext";
+import { resolveThemeArg } from "../lib/theme-storage";
 
 interface TerminalLine {
   id: number;
@@ -84,7 +85,7 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
             mkLine("output", "  clear             — clear terminal output"),
             mkLine("output", "  whoami            — display editor identity"),
             mkLine("output", "  stats             — word/char/line count"),
-            mkLine("output", "  theme <name>      — switch theme: neon | obsidian | white"),
+            mkLine("output", "  theme <name>      — light-blue | cyber-green | obsidian-silver"),
             mkLine("output", "  echo <text>       — print text to terminal"),
             mkLine("output", "  date              — print current date & time"),
             mkLine("output", "  version           — display app version"),
@@ -117,15 +118,18 @@ export default function Terminal({ markdown, onClose, onThemeChange }: TerminalP
         }
 
         case "theme": {
-          const t = args[0]?.toLowerCase() as Theme | undefined;
-          const valid: Theme[] = ["neon", "obsidian", "white"];
-          if (!t || !valid.includes(t)) {
+          const resolved = args[0] ? resolveThemeArg(args[0]) : null;
+          if (!resolved) {
             pushLines(
-              mkLine("error", `  Usage: theme <neon|obsidian|white>`),
+              mkLine(
+                "error",
+                "  Usage: theme <light-blue|cyber-green|obsidian-silver>",
+              ),
+              mkLine("info", "  Aliases: light, cyber, obsidian"),
             );
           } else {
-            onThemeChange(t);
-            pushLines(mkLine("success", `  ✓ Theme switched to '${t}'`));
+            onThemeChange(resolved);
+            pushLines(mkLine("success", `  ✓ Theme switched to '${resolved}'`));
           }
           break;
         }

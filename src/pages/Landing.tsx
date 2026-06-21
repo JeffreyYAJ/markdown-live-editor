@@ -13,6 +13,7 @@ import {
 import { LANDING_CONTAINER, LANDING_WIDE } from "./landing-layout";
 import { useAppTheme } from "../hooks/useAppTheme";
 import ThemeSwitcher from "../components/auth/ThemeSwitcher";
+import MarketingHeader from "../components/marketing/MarketingHeader";
 
 function FeatureCard({
   feature,
@@ -111,51 +112,16 @@ export default function Landing() {
     >
       <LandingAmbient theme={currentTheme} />
 
-      {/* Header */}
-      <header className={`border-b ${t.border} relative z-10`}>
-        <div
-          className={`${LANDING_WIDE} h-16 md:h-[4.5rem] grid grid-cols-[1fr_auto_1fr] items-center`}
-        >
-          <Link
-            to="/"
-            className={`${t.logoClass} text-sm md:text-base tracking-widest uppercase`}
-          >
-            {t.brand}
-          </Link>
-          <nav
-            className={`hidden md:flex gap-10 text-[11px] tracking-[0.2em] uppercase ${t.navClass}`}
-          >
-            {t.nav.map((item) => (
-              <a
-                key={item}
-                href="#features"
-                className="hover:opacity-80 transition-opacity"
-              >
-                {item}
-              </a>
-            ))}
-          </nav>
-          <div className="flex justify-end">
-            <Link to={headerTo} className={t.headerCtaClass}>
-              {headerLabel}
-            </Link>
-          </div>
-        </div>
-
-        {/* Status strip */}
-        <div
-          className={`border-t font-mono text-[10px] md:text-[11px] py-2 px-6 md:px-10 lg:px-12 xl:px-16 flex justify-between gap-4 ${statusBarClass}`}
-        >
-          <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            SYS.STATUS: ONLINE
-          </span>
-          <span className="hidden sm:inline">LATENCY: 0.12ms</span>
-          <span className="hidden md:inline">
-            {t.featuresVersion ?? "BUILD: 1.6.2"}
-          </span>
-        </div>
-      </header>
+      <MarketingHeader
+        theme={currentTheme}
+        onThemeChange={setCurrentTheme}
+        t={t}
+        statusBarClass={statusBarClass}
+        statusRight={t.featuresVersion ?? "BUILD: 1.6.2"}
+        headerTo={headerTo}
+        headerLabel={headerLabel}
+        showThemeSwitcher={false}
+      />
 
       {/* Hero */}
       <section id="home" className={`${LANDING_WIDE} pt-16 md:pt-20 pb-14 md:pb-20`}>

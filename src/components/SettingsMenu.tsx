@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { User, Settings, Puzzle, ListTodo, Palette, Check } from "lucide-react";
-import { useTheme, type Theme } from "../context/ThemeContext";
+import { useTheme } from "../context/ThemeContext";
+import { editorThemeOptions } from "../lib/editor-themes";
 
 interface SettingsMenuProps {
   onClose: () => void;
@@ -15,31 +16,7 @@ const menuItems = [
   { icon: ListTodo, label: "Tasks" },
 ];
 
-const themes: {
-  id: Theme;
-  label: string;
-  preview: string[];
-  accent: string;
-}[] = [
-  {
-    id: "neon",
-    label: "Neon",
-    preview: ["#000000", "#2e1524", "#00ff41"],
-    accent: "#00ff41",
-  },
-  {
-    id: "obsidian",
-    label: "Obsidian",
-    preview: ["#0d0b14", "#1c1730", "#c084fc"],
-    accent: "#c084fc",
-  },
-  {
-    id: "white",
-    label: "White",
-    preview: ["#fafaf8", "#f0eeea", "#1a6ef5"],
-    accent: "#1a6ef5",
-  },
-];
+const themes = editorThemeOptions;
 
 export default function SettingsMenu({ onClose, buttonRef }: SettingsMenuProps) {
   const { theme, setTheme } = useTheme();
