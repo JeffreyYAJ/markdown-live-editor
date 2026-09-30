@@ -85,7 +85,7 @@ export const authThemeStyles: Record<ThemeKey, AuthThemeStyle> = {
     terminalPrompt: "text-[#2a3d2a]",
   },
   "obsidian-silver": {
-    brand: "OBSIDIAN_OS",
+    brand: "MDitor",
     bg: "bg-black",
     text: "text-zinc-100",
     subtext: "text-zinc-500",

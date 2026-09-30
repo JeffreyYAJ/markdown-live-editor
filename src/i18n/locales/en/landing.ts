@@ -112,7 +112,7 @@ export default {
       },
     },
     "obsidian-silver": {
-      brand: "OBSIDIAN_OS",
+      brand: "MDitor",
       heroBadge: "V0.2.0 | CORE_INFRASTRUCTURE_V2",
       heroDesc:
         "An obsidian-grade markdown environment designed for elite architects. Direct-to-metal performance with zero-latency visual feedback and precision-focused typography.",

@@ -21,12 +21,12 @@ export default {
     linkedin: "LINKEDIN",
   },
   status: {
-    online: "SYS.STATUT : EN LIGNE",
+    online: "",
     authReady: "AUTH.STATUT : PRÊT",
     docsLive: "DOCS.STATUT : ACTIF",
-    latency: "LATENCE : 0,12 ms",
+    latency: "",
     tls: "SESSION : TLS 1.3",
-    build: "BUILD : 1.6.2",
+    build: "",
   },
   cta: {
     getStarted: "COMMENCER",
@@ -36,11 +36,11 @@ export default {
     openWorkspace: "OUVRIR L'ESPACE",
     viewDesktop: "VOIR LE BUREAU",
     viewRoadmap: "[ VOIR LA FEUILLE DE ROUTE ]",
-    viewArchive: "VOIR L'ARCHIVE",
+    viewArchive: "Voir mon workspace",
   },
   hero: {
-    title1: "NEURAL",
-    title2: "EDITOR",
+    title1: "MDitor",
+    title2: "live",
   },
   compare: {
     subtitle: "RENDU SANS LATENCE — RETOUR VISUEL INSTANTANÉ",

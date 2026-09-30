@@ -112,10 +112,10 @@ export default {
       },
     },
     "obsidian-silver": {
-      brand: "OBSIDIAN_OS",
-      heroBadge: "V0.2.0 | INFRASTRUCTURE_CORE_V2",
+      brand: "MDitor live",
+      heroBadge: "Le meilleur environnement markdown en ligne",
       heroDesc:
-        "Un environnement markdown grade obsidian pour architectes d'élite. Performance direct-to-metal, retour visuel sans latence et typographie orientée précision.",
+        "Un environnement markdown optimisé pour les architectes numériques. Aperçu visuel sans latence et typographie orientée précision.",
       secondaryLabel: "VOIR L'ARCHIVE",
       featuresTitle: "PRÉCISION MONOCHROME",
       featuresDesc:
